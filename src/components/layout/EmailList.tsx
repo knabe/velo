@@ -13,8 +13,14 @@ import { useLabelStore } from "@/stores/labelStore";
 import { useContextMenuStore } from "@/stores/contextMenuStore";
 import { useComposerStore } from "@/stores/composerStore";
 import { getMessagesForThread } from "@/services/db/messages";
-import { Archive, Trash2, X, Ban, Search, UserPlus, CheckCircle2, Star, Clock, Send, FileEdit, ShieldCheck, Mail, Tag, Filter } from "lucide-react";
+import { Archive, Trash2, X, Ban, Filter } from "lucide-react";
 import { EmptyState } from "../ui/EmptyState";
+import {
+  InboxClearIllustration,
+  NoSearchResultsIllustration,
+  NoAccountIllustration,
+  GenericEmptyIllustration,
+} from "../ui/illustrations";
 
 const PAGE_SIZE = 50;
 
@@ -320,7 +326,7 @@ export function EmailList({ width, listRef }: { width?: number; listRef?: React.
   return (
     <div
       ref={listRef}
-      className={`flex flex-col bg-bg-secondary/50 glass-panel ${
+      className={`flex flex-col bg-bg-secondary/80 glass-panel ${
         readingPanePosition === "right"
           ? "min-w-[240px] shrink-0"
           : readingPanePosition === "bottom"
@@ -570,13 +576,13 @@ function EmptyStateForContext({
   activeCategory: string;
 }) {
   if (searchQuery) {
-    return <EmptyState icon={Search} title="No results found" subtitle="Try a different search term" />;
+    return <EmptyState illustration={NoSearchResultsIllustration} title="No results found" subtitle="Try a different search term" />;
   }
   if (readFilter !== "all") {
     return <EmptyState icon={Filter} title={`No ${readFilter} emails`} subtitle="Try changing the filter" />;
   }
   if (!activeAccountId) {
-    return <EmptyState icon={UserPlus} title="No account connected" subtitle="Add a Gmail account to get started" />;
+    return <EmptyState illustration={NoAccountIllustration} title="No account connected" subtitle="Add a Gmail account to get started" />;
   }
 
   switch (activeLabel) {
@@ -590,24 +596,24 @@ function EmptyStateForContext({
           Newsletters: { title: "No newsletters", subtitle: "Newsletters and subscriptions appear here" },
         };
         const msg = categoryMessages[activeCategory];
-        if (msg) return <EmptyState icon={CheckCircle2} title={msg.title} subtitle={msg.subtitle} />;
+        if (msg) return <EmptyState illustration={InboxClearIllustration} title={msg.title} subtitle={msg.subtitle} />;
       }
-      return <EmptyState icon={CheckCircle2} title="You're all caught up" subtitle="No new conversations" />;
+      return <EmptyState illustration={InboxClearIllustration} title="You're all caught up" subtitle="No new conversations" />;
     case "starred":
-      return <EmptyState icon={Star} title="No starred conversations" subtitle="Star emails to find them here" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No starred conversations" subtitle="Star emails to find them here" />;
     case "snoozed":
-      return <EmptyState icon={Clock} title="No snoozed emails" subtitle="Snoozed emails will appear here" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No snoozed emails" subtitle="Snoozed emails will appear here" />;
     case "sent":
-      return <EmptyState icon={Send} title="No sent messages" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No sent messages" />;
     case "drafts":
-      return <EmptyState icon={FileEdit} title="No drafts" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No drafts" />;
     case "trash":
-      return <EmptyState icon={Trash2} title="Trash is empty" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="Trash is empty" />;
     case "spam":
-      return <EmptyState icon={ShieldCheck} title="No spam" subtitle="Looking good!" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No spam" subtitle="Looking good!" />;
     case "all":
-      return <EmptyState icon={Mail} title="No emails yet" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="No emails yet" />;
     default:
-      return <EmptyState icon={Tag} title="Nothing here" subtitle="No conversations with this label" />;
+      return <EmptyState illustration={GenericEmptyIllustration} title="Nothing here" subtitle="No conversations with this label" />;
   }
 }

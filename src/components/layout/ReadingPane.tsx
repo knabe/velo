@@ -1,6 +1,7 @@
 import { ThreadView } from "../email/ThreadView";
 import { useThreadStore } from "@/stores/threadStore";
-import { MailOpen } from "lucide-react";
+import { EmptyState } from "../ui/EmptyState";
+import { ReadingPaneIllustration } from "../ui/illustrations";
 
 export function ReadingPane() {
   const { threads, selectedThreadId } = useThreadStore();
@@ -8,20 +9,14 @@ export function ReadingPane() {
 
   if (!selectedThread) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-bg-primary/50 text-text-tertiary glass-panel">
-        <div className="text-center">
-          <MailOpen size={40} className="mx-auto mb-4 text-text-tertiary" />
-          <h2 className="text-lg font-medium text-text-secondary">
-            Velo
-          </h2>
-          <p className="text-sm mt-1">Select an email to read</p>
-        </div>
+      <div className="flex-1 flex flex-col bg-bg-primary/80 glass-panel">
+        <EmptyState illustration={ReadingPaneIllustration} title="Velo" subtitle="Select an email to read" />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-bg-primary/50 overflow-hidden glass-panel">
+    <div className="flex-1 bg-bg-primary/80 overflow-hidden glass-panel">
       <ThreadView thread={selectedThread} />
     </div>
   );
