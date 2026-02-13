@@ -23,6 +23,11 @@ export function navigateToLabel(
     return;
   }
 
+  if (label === "help") {
+    router.navigate({ to: "/help/$topic", params: { topic: "getting-started" } });
+    return;
+  }
+
   if (label.startsWith("smart-folder:")) {
     const folderId = label.replace("smart-folder:", "");
     if (opts?.threadId) {
@@ -128,6 +133,13 @@ export function navigateToSettings(tab = "general"): void {
 }
 
 /**
+ * Navigate to help with an optional topic.
+ */
+export function navigateToHelp(topic = "getting-started"): void {
+  router.navigate({ to: "/help/$topic", params: { topic } });
+}
+
+/**
  * Navigate back (deselect thread → go to parent list route).
  */
 export function navigateBack(): void {
@@ -189,6 +201,9 @@ export function getActiveLabel(): string {
     }
     if (match.routeId === "/calendar") {
       return "calendar";
+    }
+    if (match.routeId === "/help/$topic" || match.routeId === "/help") {
+      return "help";
     }
   }
   return "inbox";

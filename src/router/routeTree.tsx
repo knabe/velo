@@ -6,6 +6,7 @@ import {
 import App from "@/App";
 import { MailLayout } from "@/components/layout/MailLayout";
 import { SettingsPage } from "@/components/settings/SettingsPage";
+import { HelpPage } from "@/components/help/HelpPage";
 import { CalendarPage } from "@/components/calendar/CalendarPage";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
@@ -64,6 +65,14 @@ function CalendarPageWrapper() {
   return (
     <ErrorBoundary name="CalendarPage">
       <CalendarPage />
+    </ErrorBoundary>
+  );
+}
+
+function HelpPageWrapper() {
+  return (
+    <ErrorBoundary name="HelpPage">
+      <HelpPage />
     </ErrorBoundary>
   );
 }
@@ -133,6 +142,22 @@ export const calendarRoute = createRoute({
   component: CalendarPageWrapper,
 });
 
+// ---------- /help (redirect to /help/getting-started) ----------
+const helpIndexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "help",
+  beforeLoad: () => {
+    throw redirect({ to: "/help/$topic", params: { topic: "getting-started" } });
+  },
+});
+
+// ---------- /help/$topic ----------
+export const helpTopicRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "help/$topic",
+  component: HelpPageWrapper,
+});
+
 // ---------- Route tree ----------
 export const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -142,4 +167,6 @@ export const routeTree = rootRoute.addChildren([
   settingsIndexRoute,
   settingsTabRoute,
   calendarRoute,
+  helpIndexRoute,
+  helpTopicRoute,
 ]);

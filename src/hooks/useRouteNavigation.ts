@@ -22,6 +22,9 @@ export function useActiveLabel(): string {
     if (match.routeId === "/calendar") {
       return "calendar";
     }
+    if (match.routeId === "/help/$topic" || match.routeId === "/help") {
+      return "help";
+    }
   }
   return "inbox";
 }
