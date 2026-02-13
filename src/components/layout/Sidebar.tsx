@@ -8,6 +8,8 @@ import { useAccountStore } from "@/stores/accountStore";
 import { useLabelStore, type Label } from "@/stores/labelStore";
 import { useContextMenuStore } from "@/stores/contextMenuStore";
 import { useSmartFolderStore } from "@/stores/smartFolderStore";
+import { useActiveLabel, useActiveCategory } from "@/hooks/useRouteNavigation";
+import { navigateToLabel } from "@/router/navigate";
 import {
   Inbox,
   Star,
@@ -190,13 +192,11 @@ function getSmartFolderIcon(iconName: string): LucideIcon {
 const LABELS_COLLAPSED_COUNT = 3;
 
 export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
-  const activeLabel = useUIStore((s) => s.activeLabel);
-  const setActiveLabel = useUIStore((s) => s.setActiveLabel);
+  const activeLabel = useActiveLabel();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const inboxViewMode = useUIStore((s) => s.inboxViewMode);
   const setInboxViewMode = useUIStore((s) => s.setInboxViewMode);
-  const activeCategory = useUIStore((s) => s.activeCategory);
-  const setActiveCategory = useUIStore((s) => s.setActiveCategory);
+  const activeCategory = useActiveCategory();
   const openComposer = useComposerStore((s) => s.openComposer);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
   const labels = useLabelStore((s) => s.labels);
@@ -315,9 +315,10 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
                 isActive={isInbox ? (activeLabel === "inbox" && (inboxViewMode === "unified" || activeCategory === "Primary")) : activeLabel === item.id}
                 collapsed={collapsed}
                 onClick={() => {
-                  setActiveLabel(item.id);
                   if (isInbox && inboxViewMode === "split") {
-                    setActiveCategory("Primary");
+                    navigateToLabel(item.id, { category: "Primary" });
+                  } else {
+                    navigateToLabel(item.id);
                   }
                 }}
                 title={collapsed ? item.label : undefined}
@@ -357,8 +358,7 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
                       <button
                         key={cat.id}
                         onClick={() => {
-                          setActiveLabel("inbox");
-                          setActiveCategory(cat.id);
+                          navigateToLabel("inbox", { category: cat.id });
                         }}
                         className={`flex items-center gap-2.5 w-full py-1.5 px-3 text-[0.8125rem] transition-colors ${
                           isCatActive
@@ -401,7 +401,7 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
               return (
                 <button
                   key={folder.id}
-                  onClick={() => setActiveLabel(`smart-folder:${folder.id}`)}
+                  onClick={() => navigateToLabel(`smart-folder:${folder.id}`)}
                   title={collapsed ? folder.name : undefined}
                   className={`flex items-center w-full py-2 text-sm transition-colors press-scale ${
                     collapsed ? "justify-center px-0" : "gap-3 px-3 text-left"
@@ -456,7 +456,7 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
                   label={label}
                   isActive={activeLabel === label.id}
                   collapsed={collapsed}
-                  onClick={() => setActiveLabel(label.id)}
+                  onClick={() => navigateToLabel(label.id)}
                   onContextMenu={(e) => handleLabelContextMenu(e, label.id)}
                   onEditClick={() => handleEditLabel(label.id)}
                 />
@@ -480,7 +480,7 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
                         label={label}
                         isActive={activeLabel === label.id}
                         collapsed={collapsed}
-                        onClick={() => setActiveLabel(label.id)}
+                        onClick={() => navigateToLabel(label.id)}
                         onContextMenu={(e) => handleLabelContextMenu(e, label.id)}
                         onEditClick={() => handleEditLabel(label.id)}
                       />
@@ -530,7 +530,7 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
       {/* Bottom bar: Settings + collapse toggle */}
       <div className={`py-2 border-t border-border-primary flex ${collapsed ? "flex-col items-center gap-1 px-2" : "items-center gap-1 px-3"}`}>
         <button
-          onClick={() => setActiveLabel("settings")}
+          onClick={() => navigateToLabel("settings")}
           className={`flex items-center text-sm rounded-md transition-colors ${
             collapsed ? "p-2 justify-center" : "gap-3 flex-1 px-3 py-2 text-left"
           } ${

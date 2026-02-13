@@ -16,7 +16,6 @@ interface UIState {
   sidebarCollapsed: boolean;
   contactSidebarVisible: boolean;
   readingPanePosition: ReadingPanePosition;
-  activeLabel: string;
   readFilter: ReadFilter;
   emailListWidth: number;
   emailDensity: EmailDensity;
@@ -26,14 +25,12 @@ interface UIState {
   colorTheme: ColorThemeId;
   sendAndArchive: boolean;
   inboxViewMode: InboxViewMode;
-  activeCategory: string;
   setTheme: (theme: Theme) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleContactSidebar: () => void;
   setContactSidebarVisible: (visible: boolean) => void;
   setReadingPanePosition: (position: ReadingPanePosition) => void;
-  setActiveLabel: (label: string) => void;
   setReadFilter: (filter: ReadFilter) => void;
   setEmailListWidth: (width: number) => void;
   setEmailDensity: (density: EmailDensity) => void;
@@ -43,7 +40,6 @@ interface UIState {
   setColorTheme: (theme: ColorThemeId) => void;
   setSendAndArchive: (enabled: boolean) => void;
   setInboxViewMode: (mode: InboxViewMode) => void;
-  setActiveCategory: (category: string) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -51,7 +47,6 @@ export const useUIStore = create<UIState>((set) => ({
   sidebarCollapsed: false,
   contactSidebarVisible: true,
   readingPanePosition: "right",
-  activeLabel: "inbox",
   readFilter: "all",
   emailListWidth: 320,
   emailDensity: "default",
@@ -61,7 +56,6 @@ export const useUIStore = create<UIState>((set) => ({
   colorTheme: "indigo",
   sendAndArchive: false,
   inboxViewMode: "unified",
-  activeCategory: "Primary",
 
   setTheme: (theme) => set({ theme }),
   toggleSidebar: () =>
@@ -82,7 +76,6 @@ export const useUIStore = create<UIState>((set) => ({
     setSetting("reading_pane_position", readingPanePosition).catch(() => {});
     set({ readingPanePosition });
   },
-  setActiveLabel: (activeLabel) => set({ activeLabel }),
   setReadFilter: (readFilter) => {
     setSetting("read_filter", readFilter).catch(() => {});
     set({ readFilter });
@@ -119,5 +112,4 @@ export const useUIStore = create<UIState>((set) => ({
     setSetting("inbox_view_mode", inboxViewMode).catch(() => {});
     set({ inboxViewMode });
   },
-  setActiveCategory: (activeCategory) => set({ activeCategory }),
 }));

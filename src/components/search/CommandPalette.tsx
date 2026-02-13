@@ -6,6 +6,8 @@ import { useThreadStore } from "@/stores/threadStore";
 import { useAccountStore } from "@/stores/accountStore";
 import { getGmailClient } from "@/services/gmail/tokenManager";
 import { getTemplatesForAccount, type DbTemplate } from "@/services/db/templates";
+import { useActiveLabel } from "@/hooks/useRouteNavigation";
+import { navigateToLabel, navigateBack, getSelectedThreadId } from "@/router/navigate";
 
 interface Command {
   id: string;
@@ -25,12 +27,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const setActiveLabel = useUIStore((s) => s.setActiveLabel);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const setTheme = useUIStore((s) => s.setTheme);
   const openComposer = useComposerStore((s) => s.openComposer);
-  const selectThread = useThreadStore((s) => s.selectThread);
-  const activeLabel = useUIStore((s) => s.activeLabel);
+  const activeLabel = useActiveLabel();
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
   const [templates, setTemplates] = useState<DbTemplate[]>([]);
 
@@ -41,20 +41,20 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   const commands: Command[] = useMemo(() => [
     // Navigation
-    { id: "go-inbox", label: "Go to Inbox", shortcut: "g i", category: "Navigation", action: () => { setActiveLabel("inbox"); onClose(); } },
-    { id: "go-starred", label: "Go to Starred", shortcut: "g s", category: "Navigation", action: () => { setActiveLabel("starred"); onClose(); } },
-    { id: "go-sent", label: "Go to Sent", shortcut: "g t", category: "Navigation", action: () => { setActiveLabel("sent"); onClose(); } },
-    { id: "go-drafts", label: "Go to Drafts", shortcut: "g d", category: "Navigation", action: () => { setActiveLabel("drafts"); onClose(); } },
-    { id: "go-snoozed", label: "Go to Snoozed", category: "Navigation", action: () => { setActiveLabel("snoozed"); onClose(); } },
-    { id: "go-trash", label: "Go to Trash", category: "Navigation", action: () => { setActiveLabel("trash"); onClose(); } },
-    { id: "go-all", label: "Go to All Mail", category: "Navigation", action: () => { setActiveLabel("all"); onClose(); } },
+    { id: "go-inbox", label: "Go to Inbox", shortcut: "g i", category: "Navigation", action: () => { navigateToLabel("inbox"); onClose(); } },
+    { id: "go-starred", label: "Go to Starred", shortcut: "g s", category: "Navigation", action: () => { navigateToLabel("starred"); onClose(); } },
+    { id: "go-sent", label: "Go to Sent", shortcut: "g t", category: "Navigation", action: () => { navigateToLabel("sent"); onClose(); } },
+    { id: "go-drafts", label: "Go to Drafts", shortcut: "g d", category: "Navigation", action: () => { navigateToLabel("drafts"); onClose(); } },
+    { id: "go-snoozed", label: "Go to Snoozed", category: "Navigation", action: () => { navigateToLabel("snoozed"); onClose(); } },
+    { id: "go-trash", label: "Go to Trash", category: "Navigation", action: () => { navigateToLabel("trash"); onClose(); } },
+    { id: "go-all", label: "Go to All Mail", category: "Navigation", action: () => { navigateToLabel("all"); onClose(); } },
 
     // Actions
     { id: "compose", label: "Compose New Email", shortcut: "c", category: "Actions", action: () => { openComposer(); onClose(); } },
-    { id: "deselect", label: "Close Thread", shortcut: "Esc", category: "Actions", action: () => { selectThread(null); onClose(); } },
+    { id: "deselect", label: "Close Thread", shortcut: "Esc", category: "Actions", action: () => { navigateBack(); onClose(); } },
     { id: "spam", label: activeLabel === "spam" ? "Not Spam" : "Report Spam", shortcut: "!", category: "Actions", action: async () => {
       onClose();
-      const selectedId = useThreadStore.getState().selectedThreadId;
+      const selectedId = getSelectedThreadId();
       const accountId = useAccountStore.getState().activeAccountId;
       if (!selectedId || !accountId) return;
       try {
@@ -94,7 +94,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         onClose();
       },
     })),
-  ], [setActiveLabel, onClose, openComposer, selectThread, activeLabel, toggleSidebar, setTheme, templates]);
+  ], [onClose, openComposer, activeLabel, toggleSidebar, setTheme, templates]);
 
   const filtered = query
     ? commands.filter(

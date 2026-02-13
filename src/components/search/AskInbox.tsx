@@ -2,8 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { Sparkles, X, Send, ExternalLink } from "lucide-react";
 import { askMyInbox, type AskInboxResult } from "@/services/ai/askInbox";
 import { useAccountStore } from "@/stores/accountStore";
-import { useThreadStore } from "@/stores/threadStore";
-import { useUIStore } from "@/stores/uiStore";
+import { navigateToLabel } from "@/router/navigate";
 
 interface AskInboxProps {
   isOpen: boolean;
@@ -16,8 +15,6 @@ export function AskInbox({ isOpen, onClose }: AskInboxProps) {
   const [result, setResult] = useState<AskInboxResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
-  const selectThread = useThreadStore((s) => s.selectThread);
-  const setActiveLabel = useUIStore((s) => s.setActiveLabel);
 
   const handleAsk = useCallback(async () => {
     if (!question.trim() || !activeAccountId || loading) return;
@@ -50,10 +47,9 @@ export function AskInbox({ isOpen, onClose }: AskInboxProps) {
   );
 
   const handleNavigateToThread = useCallback((threadId: string) => {
-    setActiveLabel("all");
-    selectThread(threadId);
+    navigateToLabel("all", { threadId });
     onClose();
-  }, [selectThread, setActiveLabel, onClose]);
+  }, [onClose]);
 
   const handleClear = useCallback(() => {
     setQuestion("");

@@ -9,6 +9,7 @@ import { getSetting } from "../db/settings";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useComposerStore } from "../../stores/composerStore";
 import { useThreadStore } from "../../stores/threadStore";
+import { navigateToLabel } from "../../router/navigate";
 import { normalizeEmail } from "@/utils/emailUtils";
 
 let initialized = false;
@@ -98,7 +99,7 @@ export async function initNotifications(): Promise<void> {
       } else {
         await showAndFocusMainWindow();
         if (ctx?.threadId) {
-          useThreadStore.getState().selectThread(ctx.threadId);
+          navigateToLabel("inbox", { threadId: ctx.threadId });
         }
       }
     });

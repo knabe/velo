@@ -1,10 +1,12 @@
 import { ThreadView } from "../email/ThreadView";
 import { useThreadStore } from "@/stores/threadStore";
+import { useSelectedThreadId } from "@/hooks/useRouteNavigation";
 import { EmptyState } from "../ui/EmptyState";
 import { ReadingPaneIllustration } from "../ui/illustrations";
 
 export function ReadingPane() {
-  const { threads, selectedThreadId } = useThreadStore();
+  const threads = useThreadStore((s) => s.threads);
+  const selectedThreadId = useSelectedThreadId();
   const selectedThread = threads.find((t) => t.id === selectedThreadId);
 
   if (!selectedThread) {

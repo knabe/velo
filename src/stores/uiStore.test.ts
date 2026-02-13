@@ -14,12 +14,10 @@ describe("uiStore", () => {
       theme: "system",
       sidebarCollapsed: false,
       readingPanePosition: "right",
-      activeLabel: "inbox",
       readFilter: "all",
       fontScale: "default",
       colorTheme: "indigo",
       inboxViewMode: "unified",
-      activeCategory: "Primary",
     });
   });
 
@@ -28,7 +26,6 @@ describe("uiStore", () => {
     expect(state.theme).toBe("system");
     expect(state.sidebarCollapsed).toBe(false);
     expect(state.readingPanePosition).toBe("right");
-    expect(state.activeLabel).toBe("inbox");
   });
 
   it("should set theme", () => {
@@ -63,11 +60,6 @@ describe("uiStore", () => {
   it("should set reading pane position", () => {
     useUIStore.getState().setReadingPanePosition("bottom");
     expect(useUIStore.getState().readingPanePosition).toBe("bottom");
-  });
-
-  it("should set active label", () => {
-    useUIStore.getState().setActiveLabel("starred");
-    expect(useUIStore.getState().activeLabel).toBe("starred");
   });
 
   it("setReadingPanePosition should persist to DB settings", () => {
@@ -180,18 +172,4 @@ describe("uiStore", () => {
     expect(useUIStore.getState().inboxViewMode).toBe("unified");
   });
 
-  it("activeCategory should default to Primary", () => {
-    expect(useUIStore.getState().activeCategory).toBe("Primary");
-  });
-
-  it("setActiveCategory should update state", () => {
-    useUIStore.getState().setActiveCategory("Updates");
-    expect(useUIStore.getState().activeCategory).toBe("Updates");
-
-    useUIStore.getState().setActiveCategory("Social");
-    expect(useUIStore.getState().activeCategory).toBe("Social");
-
-    useUIStore.getState().setActiveCategory("Primary");
-    expect(useUIStore.getState().activeCategory).toBe("Primary");
-  });
 });

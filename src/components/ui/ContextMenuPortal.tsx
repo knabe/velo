@@ -3,7 +3,7 @@ import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { useContextMenuStore } from "@/stores/contextMenuStore";
 import { useThreadStore } from "@/stores/threadStore";
 import { useAccountStore } from "@/stores/accountStore";
-import { useUIStore } from "@/stores/uiStore";
+import { getActiveLabel } from "@/router/navigate";
 import { useComposerStore } from "@/stores/composerStore";
 import { useLabelStore } from "@/stores/labelStore";
 import { getGmailClient } from "@/services/gmail/tokenManager";
@@ -153,7 +153,7 @@ function ThreadMenu({
   const threads = useThreadStore((s) => s.threads);
   const selectedThreadIds = useThreadStore((s) => s.selectedThreadIds);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
-  const activeLabel = useUIStore((s) => s.activeLabel);
+  const activeLabel = getActiveLabel();
   const labels = useLabelStore((s) => s.labels);
   const openComposer = useComposerStore((s) => s.openComposer);
   const [quickSteps, setQuickSteps] = useState<DbQuickStep[]>([]);

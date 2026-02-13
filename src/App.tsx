@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { Outlet } from "@tanstack/react-router";
 import { Sidebar } from "./components/layout/Sidebar";
-import { EmailList } from "./components/layout/EmailList";
-import { ReadingPane } from "./components/layout/ReadingPane";
 import { AddAccount } from "./components/accounts/AddAccount";
 import { Composer } from "./components/composer/Composer";
 import { UndoSendToast } from "./components/composer/UndoSendToast";
@@ -48,8 +47,6 @@ import { updateBadgeCount } from "./services/badgeManager";
 import { fetchSendAsAliases } from "./services/gmail/sendAs";
 import { getGmailClient } from "./services/gmail/tokenManager";
 import { invoke } from "@tauri-apps/api/core";
-import { SettingsPage } from "./components/settings/SettingsPage";
-import { CalendarPage } from "./components/calendar/CalendarPage";
 import { DndProvider } from "./components/dnd/DndProvider";
 import { TitleBar } from "./components/layout/TitleBar";
 import { useShortcutStore } from "./stores/shortcutStore";
@@ -57,56 +54,29 @@ import { ContextMenuPortal } from "./components/ui/ContextMenuPortal";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 import { getThemeById, COLOR_THEMES } from "./constants/themes";
 import type { ColorThemeId } from "./constants/themes";
+import { router } from "./router";
+import { getSelectedThreadId } from "./router/navigate";
 
-function ResizableEmailLayout() {
-  const emailListWidth = useUIStore((s) => s.emailListWidth);
-  const setEmailListWidth = useUIStore((s) => s.setEmailListWidth);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const listRef = useRef<HTMLDivElement | null>(null);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startWidth = listRef.current?.offsetWidth ?? emailListWidth;
-
-    const handleMouseMove = (ev: MouseEvent) => {
-      const delta = ev.clientX - startX;
-      const newWidth = Math.min(800, Math.max(240, startWidth + delta));
-      // Direct DOM mutation — no React re-renders during drag
-      if (listRef.current) listRef.current.style.width = `${newWidth}px`;
-    };
-
-    const handleMouseUp = (ev: MouseEvent) => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-      // Commit final width to store (persists to DB)
-      const delta = ev.clientX - startX;
-      const finalWidth = Math.min(800, Math.max(240, startWidth + delta));
-      setEmailListWidth(finalWidth);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-  }, [emailListWidth, setEmailListWidth]);
-
-  return (
-    <div ref={containerRef} className="flex flex-1 min-w-0 flex-row">
-      <EmailList width={emailListWidth} listRef={listRef} />
-      <div
-        onMouseDown={handleMouseDown}
-        className="w-1 cursor-col-resize bg-border-primary hover:bg-accent/50 active:bg-accent transition-colors shrink-0"
-      />
-      <ReadingPane />
-    </div>
-  );
+/**
+ * Sync bridge: subscribes to router state changes and writes the selected
+ * thread ID to the threadStore so that range-select and other multi-select
+ * logic can use it as an anchor.
+ */
+function useRouterSyncBridge() {
+  useEffect(() => {
+    return router.subscribe("onResolved", () => {
+      const threadId = getSelectedThreadId();
+      if (useThreadStore.getState().selectedThreadId !== threadId) {
+        useThreadStore.getState().selectThread(threadId);
+      }
+    });
+  }, []);
 }
 
+import { useThreadStore } from "./stores/threadStore";
+
 export default function App() {
-  const { theme, setTheme, sidebarCollapsed, setSidebarCollapsed, setContactSidebarVisible, readingPanePosition, setReadingPanePosition, setReadFilter, setEmailListWidth, setEmailDensity, setDefaultReplyMode, setMarkAsReadBehavior, setSendAndArchive, fontScale, setFontScale, colorTheme, setColorTheme, activeLabel, setInboxViewMode } = useUIStore();
+  const { theme, setTheme, sidebarCollapsed, setSidebarCollapsed, setContactSidebarVisible, setReadingPanePosition, setReadFilter, setEmailListWidth, setEmailDensity, setDefaultReplyMode, setMarkAsReadBehavior, setSendAndArchive, fontScale, setFontScale, colorTheme, setColorTheme, setInboxViewMode } = useUIStore();
   const { setAccounts } = useAccountStore();
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -115,6 +85,8 @@ export default function App() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showAskInbox, setShowAskInbox] = useState(false);
 
+  // Sync bridge: router state → Zustand stores (temporary)
+  useRouterSyncBridge();
 
   // Register global keyboard shortcuts
   useKeyboardShortcuts();
@@ -466,30 +438,7 @@ export default function App() {
               onAddAccount={() => setShowAddAccount(true)}
             />
           </ErrorBoundary>
-          {activeLabel === "settings" ? (
-            <ErrorBoundary name="SettingsPage">
-              <SettingsPage />
-            </ErrorBoundary>
-          ) : activeLabel === "calendar" ? (
-            <ErrorBoundary name="CalendarPage">
-              <CalendarPage />
-            </ErrorBoundary>
-          ) : readingPanePosition === "right" ? (
-            <ErrorBoundary name="EmailLayout">
-              <ResizableEmailLayout />
-            </ErrorBoundary>
-          ) : (
-            <div className={`flex flex-1 min-w-0 ${readingPanePosition === "bottom" ? "flex-col" : "flex-row"}`}>
-              <ErrorBoundary name="EmailList">
-                <EmailList />
-              </ErrorBoundary>
-              {readingPanePosition !== "hidden" && (
-                <ErrorBoundary name="ReadingPane">
-                  <ReadingPane />
-                </ErrorBoundary>
-              )}
-            </div>
-          )}
+          <Outlet />
         </DndProvider>
       </div>
 

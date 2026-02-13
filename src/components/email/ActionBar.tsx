@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { Thread } from "@/stores/threadStore";
 import { useThreadStore } from "@/stores/threadStore";
 import { useAccountStore } from "@/stores/accountStore";
-import { useUIStore } from "@/stores/uiStore";
+import { useActiveLabel } from "@/hooks/useRouteNavigation";
 import { getGmailClient } from "@/services/gmail/tokenManager";
 import { deleteThread as deleteThreadFromDb, pinThread as pinThreadDb, unpinThread as unpinThreadDb, muteThread as muteThreadDb, unmuteThread as unmuteThreadDb } from "@/services/db/threads";
 import { deleteDraftsForThread } from "@/services/gmail/draftDeletion";
@@ -23,7 +23,7 @@ export function ActionBar({ thread, messages }: ActionBarProps) {
   const updateThread = useThreadStore((s) => s.updateThread);
   const removeThread = useThreadStore((s) => s.removeThread);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
-  const activeLabel = useUIStore((s) => s.activeLabel);
+  const activeLabel = useActiveLabel();
   const [showSnooze, setShowSnooze] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
   const [hasFollowUp, setHasFollowUp] = useState(false);

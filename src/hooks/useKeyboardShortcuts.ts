@@ -5,6 +5,7 @@ import { useComposerStore } from "@/stores/composerStore";
 import { useAccountStore } from "@/stores/accountStore";
 import { useShortcutStore } from "@/stores/shortcutStore";
 import { useContextMenuStore } from "@/stores/contextMenuStore";
+import { navigateToLabel, navigateToThread, navigateBack, getActiveLabel, getSelectedThreadId } from "@/router/navigate";
 import { getGmailClient } from "@/services/gmail/tokenManager";
 import { deleteThread as deleteThreadFromDb, pinThread as pinThreadDb, unpinThread as unpinThreadDb, muteThread as muteThreadDb, unmuteThread as unmuteThreadDb } from "@/services/db/threads";
 import { deleteDraftsForThread } from "@/services/gmail/draftDeletion";
@@ -173,7 +174,7 @@ export function useKeyboardShortcuts() {
 
 async function executeAction(actionId: string): Promise<void> {
   const threads = useThreadStore.getState().threads;
-  const selectedId = useThreadStore.getState().selectedThreadId;
+  const selectedId = getSelectedThreadId();
   const currentIdx = threads.findIndex((t) => t.id === selectedId);
   const activeAccountId = useAccountStore.getState().activeAccountId;
 
@@ -181,63 +182,58 @@ async function executeAction(actionId: string): Promise<void> {
     case "nav.next": {
       const nextIdx = Math.min(currentIdx + 1, threads.length - 1);
       if (threads[nextIdx]) {
-        useThreadStore.getState().selectThread(threads[nextIdx].id);
+        navigateToThread(threads[nextIdx].id);
       }
       break;
     }
     case "nav.prev": {
       const prevIdx = Math.max(currentIdx - 1, 0);
       if (threads[prevIdx]) {
-        useThreadStore.getState().selectThread(threads[prevIdx].id);
+        navigateToThread(threads[prevIdx].id);
       }
       break;
     }
     case "nav.open": {
       if (!selectedId && threads[0]) {
-        useThreadStore.getState().selectThread(threads[0].id);
+        navigateToThread(threads[0].id);
       }
       break;
     }
     case "nav.goInbox":
-      useUIStore.getState().setActiveLabel("inbox");
+      navigateToLabel("inbox");
       break;
     case "nav.goStarred":
-      useUIStore.getState().setActiveLabel("starred");
+      navigateToLabel("starred");
       break;
     case "nav.goSent":
-      useUIStore.getState().setActiveLabel("sent");
+      navigateToLabel("sent");
       break;
     case "nav.goDrafts":
-      useUIStore.getState().setActiveLabel("drafts");
+      navigateToLabel("drafts");
       break;
     case "nav.goPrimary":
       if (useUIStore.getState().inboxViewMode === "split") {
-        useUIStore.getState().setActiveLabel("inbox");
-        useUIStore.getState().setActiveCategory("Primary");
+        navigateToLabel("inbox", { category: "Primary" });
       }
       break;
     case "nav.goUpdates":
       if (useUIStore.getState().inboxViewMode === "split") {
-        useUIStore.getState().setActiveLabel("inbox");
-        useUIStore.getState().setActiveCategory("Updates");
+        navigateToLabel("inbox", { category: "Updates" });
       }
       break;
     case "nav.goPromotions":
       if (useUIStore.getState().inboxViewMode === "split") {
-        useUIStore.getState().setActiveLabel("inbox");
-        useUIStore.getState().setActiveCategory("Promotions");
+        navigateToLabel("inbox", { category: "Promotions" });
       }
       break;
     case "nav.goSocial":
       if (useUIStore.getState().inboxViewMode === "split") {
-        useUIStore.getState().setActiveLabel("inbox");
-        useUIStore.getState().setActiveCategory("Social");
+        navigateToLabel("inbox", { category: "Social" });
       }
       break;
     case "nav.goNewsletters":
       if (useUIStore.getState().inboxViewMode === "split") {
-        useUIStore.getState().setActiveLabel("inbox");
-        useUIStore.getState().setActiveCategory("Newsletters");
+        navigateToLabel("inbox", { category: "Newsletters" });
       }
       break;
     case "nav.escape": {
@@ -246,7 +242,7 @@ async function executeAction(actionId: string): Promise<void> {
       } else if (useThreadStore.getState().selectedThreadIds.size > 0) {
         useThreadStore.getState().clearMultiSelect();
       } else if (selectedId) {
-        useThreadStore.getState().selectThread(null);
+        navigateBack();
       }
       break;
     }
@@ -295,9 +291,9 @@ async function executeAction(actionId: string): Promise<void> {
       break;
     }
     case "action.delete": {
-      const activeLabel = useUIStore.getState().activeLabel;
-      const isTrashView = activeLabel === "trash";
-      const isDraftsView = activeLabel === "drafts";
+      const deleteLabelCtx = getActiveLabel();
+      const isTrashView = deleteLabelCtx === "trash";
+      const isDraftsView = deleteLabelCtx === "drafts";
       const multiDeleteIds = useThreadStore.getState().selectedThreadIds;
       if (multiDeleteIds.size > 0 && activeAccountId) {
         try {
@@ -361,7 +357,7 @@ async function executeAction(actionId: string): Promise<void> {
       break;
     }
     case "action.spam": {
-      const isSpamView = useUIStore.getState().activeLabel === "spam";
+      const isSpamView = getActiveLabel() === "spam";
       const multiSpamIds = useThreadStore.getState().selectedThreadIds;
       if (multiSpamIds.size > 0 && activeAccountId) {
         try {

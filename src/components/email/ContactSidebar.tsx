@@ -4,6 +4,7 @@ import { getContactByEmail, getContactStats, getRecentThreadsWithContact, type C
 import { fetchAndCacheGravatarUrl } from "@/services/contacts/gravatar";
 import { useThreadStore } from "@/stores/threadStore";
 import { getThreadById, getThreadLabelIds } from "@/services/db/threads";
+import { navigateToThread } from "@/router/navigate";
 import { formatRelativeDate } from "@/utils/date";
 
 interface ContactSidebarProps {
@@ -18,15 +19,15 @@ export function ContactSidebar({ email, name, accountId, onClose }: ContactSideb
   const [stats, setStats] = useState<ContactStats | null>(null);
   const [recentThreads, setRecentThreads] = useState<{ thread_id: string; subject: string | null; last_message_at: number | null }[]>([]);
   const loadedRef = useRef<string | null>(null);
-  const { selectThread, threads, setThreads } = useThreadStore();
+  const { threads, setThreads } = useThreadStore();
 
   const handleThreadClick = useCallback(async (threadId: string) => {
-    // If thread is already loaded in the store, just select it
+    // If thread is already loaded in the store, just navigate
     if (threads.some((t) => t.id === threadId)) {
-      selectThread(threadId);
+      navigateToThread(threadId);
       return;
     }
-    // Otherwise load from DB and add to store
+    // Otherwise load from DB and add to store, then navigate
     const dbThread = await getThreadById(accountId, threadId);
     if (!dbThread) return;
     const labelIds = await getThreadLabelIds(accountId, threadId);
@@ -47,8 +48,8 @@ export function ContactSidebar({ email, name, accountId, onClose }: ContactSideb
       fromAddress: dbThread.from_address,
     };
     setThreads([...threads, mapped]);
-    selectThread(threadId);
-  }, [accountId, threads, selectThread, setThreads]);
+    navigateToThread(threadId);
+  }, [accountId, threads, setThreads]);
 
   useEffect(() => {
     if (!email || loadedRef.current === email) return;

@@ -7,6 +7,8 @@ import { EmailListSkeleton } from "../ui/Skeleton";
 import { useThreadStore, type Thread } from "@/stores/threadStore";
 import { useAccountStore } from "@/stores/accountStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useActiveLabel, useSelectedThreadId, useActiveCategory } from "@/hooks/useRouteNavigation";
+import { navigateToThread, navigateToLabel } from "@/router/navigate";
 import { getThreadsForAccount, getThreadsForCategory, getThreadLabelIds, deleteThread as deleteThreadFromDb } from "@/services/db/threads";
 import { getCategoriesForThreads, getCategoryUnreadCounts } from "@/services/db/threadCategories";
 import { getActiveFollowUpThreadIds } from "@/services/db/followUpReminders";
@@ -44,17 +46,16 @@ const LABEL_MAP: Record<string, string> = {
 
 export function EmailList({ width, listRef }: { width?: number; listRef?: React.Ref<HTMLDivElement> }) {
   const threads = useThreadStore((s) => s.threads);
-  const selectedThreadId = useThreadStore((s) => s.selectedThreadId);
+  const selectedThreadId = useSelectedThreadId();
   const selectedThreadIds = useThreadStore((s) => s.selectedThreadIds);
   const isLoading = useThreadStore((s) => s.isLoading);
   const setThreads = useThreadStore((s) => s.setThreads);
-  const selectThread = useThreadStore((s) => s.selectThread);
   const setLoading = useThreadStore((s) => s.setLoading);
   const removeThreads = useThreadStore((s) => s.removeThreads);
   const clearMultiSelect = useThreadStore((s) => s.clearMultiSelect);
   const selectAll = useThreadStore((s) => s.selectAll);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
-  const activeLabel = useUIStore((s) => s.activeLabel);
+  const activeLabel = useActiveLabel();
   const readFilter = useUIStore((s) => s.readFilter);
   const setReadFilter = useUIStore((s) => s.setReadFilter);
   const readingPanePosition = useUIStore((s) => s.readingPanePosition);
@@ -67,12 +68,13 @@ export function EmailList({ width, listRef }: { width?: number; listRef?: React.
   const activeSmartFolder = smartFolderId ? smartFolders.find((f) => f.id === smartFolderId) ?? null : null;
 
   const inboxViewMode = useUIStore((s) => s.inboxViewMode);
-  const storeActiveCategory = useUIStore((s) => s.activeCategory);
-  const setStoreActiveCategory = useUIStore((s) => s.setActiveCategory);
+  const routerCategory = useActiveCategory();
 
-  // In split mode, use the store's active category; in unified mode, always use "All"
-  const activeCategory = inboxViewMode === "split" ? storeActiveCategory : "All";
-  const setActiveCategory = inboxViewMode === "split" ? setStoreActiveCategory : () => {};
+  // In split mode, use the router's category; in unified mode, always use "All"
+  const activeCategory = inboxViewMode === "split" ? routerCategory : "All";
+  const setActiveCategory = inboxViewMode === "split"
+    ? (cat: string) => navigateToLabel("inbox", { category: cat })
+    : () => {};
 
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -419,13 +421,6 @@ export function EmailList({ width, listRef }: { width?: number; listRef?: React.
       .catch(() => setHeldThreadIds(new Set()));
   }, [threads, activeLabel, activeAccountId]);
 
-  // Reset category tab when leaving inbox
-  useEffect(() => {
-    if (activeLabel !== "inbox" && inboxViewMode === "split") {
-      setStoreActiveCategory("Primary");
-    }
-  }, [activeLabel, inboxViewMode, setStoreActiveCategory]);
-
   // Listen for sync completion to reload
   useEffect(() => {
     const handler = () => { loadThreads(); };
@@ -613,7 +608,7 @@ export function EmailList({ width, listRef }: { width?: number; listRef?: React.
                       <ThreadCard
                         thread={thread}
                         isSelected={thread.id === selectedThreadId}
-                        onClick={() => selectThread(thread.id)}
+                        onClick={() => navigateToThread(thread.id)}
                         onContextMenu={(e) => handleThreadContextMenu(e, thread.id)}
                         category={rule.category}
                         hasFollowUp={followUpThreadIds.has(thread.id)}
@@ -656,7 +651,7 @@ export function EmailList({ width, listRef }: { width?: number; listRef?: React.
                       if (activeLabel === "drafts") {
                         handleDraftClick(thread);
                       } else {
-                        selectThread(thread.id);
+                        navigateToThread(thread.id);
                       }
                     }}
                     onContextMenu={(e) => handleThreadContextMenu(e, thread.id)}

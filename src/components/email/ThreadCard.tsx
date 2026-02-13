@@ -3,6 +3,7 @@ import { useDraggable } from "@dnd-kit/core";
 import type { Thread } from "@/stores/threadStore";
 import { useThreadStore } from "@/stores/threadStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useActiveLabel } from "@/hooks/useRouteNavigation";
 import { formatRelativeDate } from "@/utils/date";
 import { Paperclip, Star, Check, Pin, BellRing, VolumeX } from "lucide-react";
 import type { DragData } from "@/components/dnd/DndProvider";
@@ -30,7 +31,7 @@ export const ThreadCard = memo(function ThreadCard({ thread, isSelected, onClick
   const selectedThreadIds = useThreadStore((s) => s.selectedThreadIds);
   const toggleThreadSelection = useThreadStore((s) => s.toggleThreadSelection);
   const selectThreadRange = useThreadStore((s) => s.selectThreadRange);
-  const activeLabel = useUIStore((s) => s.activeLabel);
+  const activeLabel = useActiveLabel();
   const emailDensity = useUIStore((s) => s.emailDensity);
 
   // Determine drag payload: if multi-selected and this thread is in selection, drag all; otherwise just this one
