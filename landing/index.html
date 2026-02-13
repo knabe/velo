@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Primary Meta -->
+    <title>Velo — Email at the speed of thought | Open Source Desktop Email Client</title>
+    <meta name="description" content="Velo is a free, open-source desktop email client. AI-powered, keyboard-first, privacy-focused. 122 features, 30+ shortcuts, 3 AI providers, zero tracking. Built with Tauri for Windows, macOS & Linux." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0A0A0F" />
+    <meta name="author" content="Velo" />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="email client, desktop email, open source email, AI email, keyboard shortcuts email, privacy email, Gmail client, Tauri app, free email client, smart inbox, phishing detection, email productivity" />
+    <link rel="canonical" href="https://valomail.app/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://valomail.app/" />
+    <meta property="og:title" content="Velo — Email at the speed of thought" />
+    <meta property="og:description" content="Free & open-source desktop email client. AI-powered, keyboard-first, privacy-focused. 122 features, zero tracking. Available for Windows, macOS & Linux." />
+    <meta property="og:image" content="https://valomail.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Velo email client — Email at the speed of thought" />
+    <meta property="og:site_name" content="Velo" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://valomail.app/" />
+    <meta name="twitter:title" content="Velo — Email at the speed of thought" />
+    <meta name="twitter:description" content="Free & open-source desktop email client. AI-powered, keyboard-first, privacy-focused. 122 features, zero tracking." />
+    <meta name="twitter:image" content="https://valomail.app/og-image.png" />
+    <meta name="twitter:image:alt" content="Velo email client — Email at the speed of thought" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Structured Data: SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Velo",
+      "description": "Free & open-source desktop email client. AI-powered, keyboard-first, privacy-focused. Built with Tauri for Windows, macOS & Linux.",
+      "url": "https://valomail.app",
+      "applicationCategory": "CommunicationApplication",
+      "operatingSystem": "Windows, macOS, Linux",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "softwareVersion": "1.0",
+      "author": {
+        "@type": "Organization",
+        "name": "Velo",
+        "url": "https://valomail.app"
+      },
+      "license": "https://github.com/avihaymenahem/velo/blob/main/LICENSE",
+      "downloadUrl": "https://github.com/avihaymenahem/velo/releases",
+      "screenshot": "https://valomail.app/og-image.png",
+      "featureList": "AI-powered thread summaries, Smart replies, 30+ keyboard shortcuts, Phishing detection, Split inbox categories, Local-first SQLite database, Dark & light themes, Google Calendar integration, Newsletter bundles, Quick Steps automation",
+      "isAccessibleForFree": true
+    }
+    </script>
+
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Velo",
+      "url": "https://valomail.app",
+      "description": "Free & open-source desktop email client",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://valomail.app/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Structured Data: FAQPage (good for rich snippets) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Velo free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Velo is completely free and open source. No subscriptions, no premium tiers, no hidden costs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Velo open source?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Velo is fully open source on GitHub at github.com/avihaymenahem/velo. You can inspect every line of code, contribute, or fork it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What email providers does Velo support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Velo currently supports Gmail via the Gmail REST API with OAuth authentication. You bring your own Google Cloud credentials for maximum privacy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Velo store my data in the cloud?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Velo is local-first — all your data is stored in a SQLite database on your machine. No analytics, no tracking, no cloud storage. Your email never touches our servers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What platforms does Velo support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Velo runs on Windows, macOS, and Linux as a native desktop application built with Tauri v2."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which AI providers does Velo support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Velo supports three AI providers: Anthropic Claude, OpenAI GPT, and Google Gemini. You bring your own API key and all AI results are cached locally."
+          }
+        }
+      ]
+    }
+    </script>
+  </head>
+  <body class="bg-[#0A0A0F] text-[#E8E8F0] antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
