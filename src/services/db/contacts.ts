@@ -1,4 +1,5 @@
-import { getDb } from "./connection";
+import { getDb, selectFirstBy } from "./connection";
+import { normalizeEmail } from "@/utils/emailUtils";
 
 export interface DbContact {
   id: string;
@@ -82,19 +83,17 @@ export async function upsertContact(
        frequency = frequency + 1,
        last_contacted_at = unixepoch(),
        updated_at = unixepoch()`,
-    [id, email.toLowerCase(), displayName],
+    [id, normalizeEmail(email), displayName],
   );
 }
 
 export async function getContactByEmail(
   email: string,
 ): Promise<DbContact | null> {
-  const db = await getDb();
-  const rows = await db.select<DbContact[]>(
+  return selectFirstBy<DbContact>(
     "SELECT * FROM contacts WHERE email = $1 LIMIT 1",
-    [email.toLowerCase()],
+    [normalizeEmail(email)],
   );
-  return rows[0] ?? null;
 }
 
 export interface ContactStats {
@@ -110,7 +109,7 @@ export async function getContactStats(
   const rows = await db.select<{ cnt: number; first_date: number | null; last_date: number | null }[]>(
     `SELECT COUNT(*) as cnt, MIN(date) as first_date, MAX(date) as last_date
      FROM messages WHERE from_address = $1`,
-    [email.toLowerCase()],
+    [normalizeEmail(email)],
   );
   const row = rows[0];
   return {
@@ -132,7 +131,7 @@ export async function getRecentThreadsWithContact(
      WHERE m.from_address = $1
      ORDER BY t.last_message_at DESC
      LIMIT $2`,
-    [email.toLowerCase(), limit],
+    [normalizeEmail(email), limit],
   );
 }
 
@@ -143,6 +142,6 @@ export async function updateContactAvatar(
   const db = await getDb();
   await db.execute(
     "UPDATE contacts SET avatar_url = $1, updated_at = unixepoch() WHERE email = $2",
-    [avatarUrl, email.toLowerCase()],
+    [avatarUrl, normalizeEmail(email)],
   );
 }

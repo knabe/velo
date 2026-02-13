@@ -100,7 +100,8 @@ export default function ThreadWindow() {
     }
 
     init();
-  }, [setTheme, setFontScale, setColorTheme, setAccounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- store setters are stable references
+  }, []);
 
   // Sync theme class to <html>
   const theme = useUIStore((s) => s.theme);

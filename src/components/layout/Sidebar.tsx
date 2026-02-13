@@ -190,11 +190,23 @@ function getSmartFolderIcon(iconName: string): LucideIcon {
 const LABELS_COLLAPSED_COUNT = 3;
 
 export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
-  const { activeLabel, setActiveLabel, toggleSidebar, inboxViewMode, setInboxViewMode, activeCategory, setActiveCategory } = useUIStore();
+  const activeLabel = useUIStore((s) => s.activeLabel);
+  const setActiveLabel = useUIStore((s) => s.setActiveLabel);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const inboxViewMode = useUIStore((s) => s.inboxViewMode);
+  const setInboxViewMode = useUIStore((s) => s.setInboxViewMode);
+  const activeCategory = useUIStore((s) => s.activeCategory);
+  const setActiveCategory = useUIStore((s) => s.setActiveCategory);
   const openComposer = useComposerStore((s) => s.openComposer);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
-  const { labels, loadLabels, deleteLabel } = useLabelStore();
-  const { folders: smartFolders, unreadCounts: smartFolderCounts, loadFolders: loadSmartFolders, refreshUnreadCounts: refreshSmartFolderCounts, createFolder: createSmartFolder } = useSmartFolderStore();
+  const labels = useLabelStore((s) => s.labels);
+  const loadLabels = useLabelStore((s) => s.loadLabels);
+  const deleteLabel = useLabelStore((s) => s.deleteLabel);
+  const smartFolders = useSmartFolderStore((s) => s.folders);
+  const smartFolderCounts = useSmartFolderStore((s) => s.unreadCounts);
+  const loadSmartFolders = useSmartFolderStore((s) => s.loadFolders);
+  const refreshSmartFolderCounts = useSmartFolderStore((s) => s.refreshUnreadCounts);
+  const createSmartFolder = useSmartFolderStore((s) => s.createFolder);
   const [labelsExpanded, setLabelsExpanded] = useState(false);
 
   // Inline label editing state

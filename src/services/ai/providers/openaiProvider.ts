@@ -1,20 +1,14 @@
 import OpenAI from "openai";
 import type { AiProviderClient, AiCompletionRequest } from "../types";
 import { DEFAULT_MODELS } from "../types";
+import { createProviderFactory } from "../providerFactory";
 
-let clientInstance: OpenAI | null = null;
-let currentKey: string | null = null;
+const factory = createProviderFactory(
+  (apiKey) => new OpenAI({ apiKey, dangerouslyAllowBrowser: true }),
+);
 
 export function createOpenAIProvider(apiKey: string): AiProviderClient {
-  if (!clientInstance || currentKey !== apiKey) {
-    clientInstance = new OpenAI({
-      apiKey,
-      dangerouslyAllowBrowser: true,
-    });
-    currentKey = apiKey;
-  }
-
-  const client = clientInstance;
+  const client = factory.getClient(apiKey);
 
   return {
     async complete(req: AiCompletionRequest): Promise<string> {
@@ -46,6 +40,5 @@ export function createOpenAIProvider(apiKey: string): AiProviderClient {
 }
 
 export function clearOpenAIProvider(): void {
-  clientInstance = null;
-  currentKey = null;
+  factory.clear();
 }

@@ -57,16 +57,14 @@ export function QuickStepEditor() {
     setQuickSteps(qs);
   }, [activeAccountId]);
 
-  const loadLabels = useCallback(async () => {
-    if (!activeAccountId) return;
-    const l = await getLabelsForAccount(activeAccountId);
-    setLabels(l.filter((lb) => lb.type === "user"));
-  }, [activeAccountId]);
-
   useEffect(() => {
+    if (!activeAccountId) return;
     loadQuickSteps();
-    loadLabels();
-  }, [loadQuickSteps, loadLabels]);
+    getLabelsForAccount(activeAccountId).then((l) =>
+      setLabels(l.filter((lb) => lb.type === "user")),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadQuickSteps is stable, only re-run on activeAccountId change
+  }, [activeAccountId]);
 
   const resetForm = useCallback(() => {
     setName("");

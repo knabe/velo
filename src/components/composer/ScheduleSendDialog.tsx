@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { DateTimePickerDialog } from "@/components/ui/DateTimePickerDialog";
 
 interface ScheduleSendDialogProps {
   onSchedule: (timestamp: number) => void;
@@ -46,72 +46,17 @@ function getSchedulePresets(): { label: string; detail: string; timestamp: numbe
 }
 
 export function ScheduleSendDialog({ onSchedule, onClose }: ScheduleSendDialogProps) {
-  const [customDate, setCustomDate] = useState("");
-  const [customTime, setCustomTime] = useState("09:00");
   const presets = getSchedulePresets();
 
-  const handleCustomSchedule = () => {
-    if (!customDate) return;
-    const dt = new Date(`${customDate}T${customTime}`);
-    onSchedule(Math.floor(dt.getTime() / 1000));
-  };
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/20 glass-backdrop" onClick={onClose} />
-      <div className="relative bg-bg-primary border border-border-primary rounded-lg glass-modal w-72">
-        <div className="px-4 py-3 border-b border-border-primary flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text-primary">
-            Schedule send
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary text-lg leading-none"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="py-1">
-          {presets.map((preset) => (
-            <button
-              key={preset.label}
-              onClick={() => onSchedule(preset.timestamp)}
-              className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-bg-hover transition-colors flex items-center justify-between"
-            >
-              <span>{preset.label}</span>
-              <span className="text-xs text-text-tertiary">{preset.detail}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="border-t border-border-secondary px-4 py-3 space-y-2">
-          <div className="text-xs text-text-tertiary font-medium">
-            Custom date & time
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              value={customDate}
-              onChange={(e) => setCustomDate(e.target.value)}
-              className="flex-1 bg-bg-tertiary text-text-primary text-xs px-2 py-1.5 rounded border border-border-primary"
-            />
-            <input
-              type="time"
-              value={customTime}
-              onChange={(e) => setCustomTime(e.target.value)}
-              className="w-20 bg-bg-tertiary text-text-primary text-xs px-2 py-1.5 rounded border border-border-primary"
-            />
-          </div>
-          <button
-            onClick={handleCustomSchedule}
-            disabled={!customDate}
-            className="w-full text-center px-3 py-1.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50"
-          >
-            Schedule
-          </button>
-        </div>
-      </div>
-    </div>
+    <DateTimePickerDialog
+      isOpen={true}
+      onClose={onClose}
+      title="Schedule send"
+      presets={presets}
+      onSelect={onSchedule}
+      submitLabel="Schedule"
+      zIndex="z-[60]"
+    />
   );
 }

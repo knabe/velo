@@ -50,7 +50,8 @@ export function TemplateEditor() {
 
   useEffect(() => {
     loadTemplates();
-  }, [loadTemplates]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTemplates is stable, only re-run on activeAccountId change
+  }, [activeAccountId]);
 
   const resetForm = useCallback(() => {
     setName("");

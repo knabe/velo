@@ -43,8 +43,16 @@ const LABEL_MAP: Record<string, string> = {
 };
 
 export function EmailList({ width, listRef }: { width?: number; listRef?: React.Ref<HTMLDivElement> }) {
-  const { threads, selectedThreadId, selectedThreadIds, isLoading, setThreads, selectThread, setLoading, removeThreads, clearMultiSelect, selectAll } =
-    useThreadStore();
+  const threads = useThreadStore((s) => s.threads);
+  const selectedThreadId = useThreadStore((s) => s.selectedThreadId);
+  const selectedThreadIds = useThreadStore((s) => s.selectedThreadIds);
+  const isLoading = useThreadStore((s) => s.isLoading);
+  const setThreads = useThreadStore((s) => s.setThreads);
+  const selectThread = useThreadStore((s) => s.selectThread);
+  const setLoading = useThreadStore((s) => s.setLoading);
+  const removeThreads = useThreadStore((s) => s.removeThreads);
+  const clearMultiSelect = useThreadStore((s) => s.clearMultiSelect);
+  const selectAll = useThreadStore((s) => s.selectAll);
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
   const activeLabel = useUIStore((s) => s.activeLabel);
   const readFilter = useUIStore((s) => s.readFilter);

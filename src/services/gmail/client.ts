@@ -1,6 +1,7 @@
 import { refreshAccessToken, type TokenResponse } from "./auth";
 import { getDb } from "../db/connection";
 import { encryptValue } from "@/utils/crypto";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
 const GMAIL_API_BASE = "https://www.googleapis.com/gmail/v1";
 
@@ -28,7 +29,7 @@ export class GmailClient {
   }
 
   private async getValidToken(): Promise<string> {
-    const now = Math.floor(Date.now() / 1000);
+    const now = getCurrentUnixTimestamp();
     // Refresh if token expires within 5 minutes
     if (this.tokenInfo.expiresAt - now < 300) {
       // Mutex: only one refresh at a time; concurrent callers await the same promise
@@ -49,7 +50,7 @@ export class GmailClient {
       this.clientSecret,
     );
 
-    const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
+    const expiresAt = getCurrentUnixTimestamp() + tokens.expires_in;
 
     this.tokenInfo = {
       accessToken: tokens.access_token,

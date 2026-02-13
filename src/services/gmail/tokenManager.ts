@@ -2,6 +2,8 @@ import { GmailClient } from "./client";
 import { startOAuthFlow } from "./auth";
 import { getAllAccounts, getAccount, updateAccountAllTokens } from "../db/accounts";
 import { getSetting, getSecureSetting } from "../db/settings";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
+import { normalizeEmail } from "@/utils/emailUtils";
 
 // In-memory cache of active GmailClient instances per account
 const clients = new Map<string, GmailClient>();
@@ -98,7 +100,7 @@ export async function reauthorizeAccount(
 
   const { tokens, userInfo } = await startOAuthFlow(clientId, clientSecret);
 
-  if (userInfo.email.toLowerCase() !== expectedEmail.toLowerCase()) {
+  if (normalizeEmail(userInfo.email) !== normalizeEmail(expectedEmail)) {
     throw new Error(
       `Signed in as ${userInfo.email}, but expected ${expectedEmail}. Please sign in with the correct account.`,
     );
@@ -110,7 +112,7 @@ export async function reauthorizeAccount(
     );
   }
 
-  const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
+  const expiresAt = getCurrentUnixTimestamp() + tokens.expires_in;
   await updateAccountAllTokens(accountId, tokens.access_token, tokens.refresh_token, expiresAt);
 
   // Evict stale client and create a fresh one

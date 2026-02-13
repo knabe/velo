@@ -4,6 +4,7 @@ import { insertAccount } from "@/services/db/accounts";
 import { getClientId, getClientSecret } from "@/services/gmail/tokenManager";
 import { useAccountStore } from "@/stores/accountStore";
 import { SetupClientId } from "./SetupClientId";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
 interface AddAccountProps {
   onClose: () => void;
@@ -30,7 +31,7 @@ export function AddAccount({ onClose, onSuccess }: AddAccountProps) {
       const { tokens, userInfo } = await startOAuthFlow(clientId, clientSecret);
 
       const accountId = crypto.randomUUID();
-      const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
+      const expiresAt = getCurrentUnixTimestamp() + tokens.expires_in;
 
       await insertAccount({
         id: accountId,

@@ -9,6 +9,7 @@ import { getSetting } from "../db/settings";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useComposerStore } from "../../stores/composerStore";
 import { useThreadStore } from "../../stores/threadStore";
+import { normalizeEmail } from "@/utils/emailUtils";
 
 let initialized = false;
 let notificationsEnabled = true;
@@ -162,7 +163,7 @@ export function shouldNotifyForMessage(
   fromAddress?: string,
 ): boolean {
   if (!smartEnabled) return true; // Smart notifications off → notify everything
-  if (fromAddress && vipSenders.has(fromAddress.toLowerCase())) return true; // VIP always notifies
+  if (fromAddress && vipSenders.has(normalizeEmail(fromAddress))) return true; // VIP always notifies
   const category = threadCategory ?? "Primary"; // uncategorized defaults to Primary
   return allowedCategories.has(category);
 }

@@ -1,4 +1,5 @@
 import { getContactByEmail, updateContactAvatar } from "@/services/db/contacts";
+import { normalizeEmail } from "@/utils/emailUtils";
 
 /**
  * Simple MD5 implementation for Gravatar hashes.
@@ -91,7 +92,7 @@ function md5(input: string): string {
 }
 
 export function getGravatarUrl(email: string): string {
-  const hash = md5(email.trim().toLowerCase());
+  const hash = md5(normalizeEmail(email));
   return `https://www.gravatar.com/avatar/${hash}?d=404&s=80`;
 }
 

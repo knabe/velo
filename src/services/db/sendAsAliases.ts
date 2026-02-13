@@ -1,4 +1,4 @@
-import { getDb } from "./connection";
+import { getDb, selectFirstBy, boolToInt } from "./connection";
 
 export interface DbSendAsAlias {
   id: string;
@@ -83,9 +83,9 @@ export async function upsertAlias(alias: {
       alias.displayName ?? null,
       alias.replyToAddress ?? null,
       alias.signatureId ?? null,
-      alias.isPrimary ? 1 : 0,
-      alias.isDefault ? 1 : 0,
-      alias.treatAsAlias !== false ? 1 : 0,
+      boolToInt(alias.isPrimary),
+      boolToInt(alias.isDefault),
+      boolToInt(alias.treatAsAlias !== false),
       alias.verificationStatus ?? "accepted",
     ],
   );
@@ -96,20 +96,18 @@ export async function upsertAlias(alias: {
 export async function getDefaultAlias(
   accountId: string,
 ): Promise<DbSendAsAlias | null> {
-  const db = await getDb();
   // Try to get the explicitly set default
-  const defaults = await db.select<DbSendAsAlias[]>(
+  const defaultAlias = await selectFirstBy<DbSendAsAlias>(
     "SELECT * FROM send_as_aliases WHERE account_id = $1 AND is_default = 1 LIMIT 1",
     [accountId],
   );
-  if (defaults[0]) return defaults[0];
+  if (defaultAlias) return defaultAlias;
 
   // Fall back to the primary alias
-  const primaries = await db.select<DbSendAsAlias[]>(
+  return selectFirstBy<DbSendAsAlias>(
     "SELECT * FROM send_as_aliases WHERE account_id = $1 AND is_primary = 1 LIMIT 1",
     [accountId],
   );
-  return primaries[0] ?? null;
 }
 
 export async function setDefaultAlias(

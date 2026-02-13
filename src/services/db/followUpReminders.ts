@@ -1,4 +1,5 @@
-import { getDb } from "./connection";
+import { getDb, selectFirstBy } from "./connection";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
 export interface DbFollowUpReminder {
   id: string;
@@ -29,7 +30,7 @@ export async function insertFollowUpReminder(
 
 export async function getPendingFollowUpReminders(): Promise<DbFollowUpReminder[]> {
   const db = await getDb();
-  const now = Math.floor(Date.now() / 1000);
+  const now = getCurrentUnixTimestamp();
   return db.select<DbFollowUpReminder[]>(
     "SELECT * FROM follow_up_reminders WHERE status = 'pending' AND remind_at <= $1",
     [now],
@@ -40,12 +41,10 @@ export async function getFollowUpForThread(
   accountId: string,
   threadId: string,
 ): Promise<DbFollowUpReminder | null> {
-  const db = await getDb();
-  const rows = await db.select<DbFollowUpReminder[]>(
+  return selectFirstBy<DbFollowUpReminder>(
     "SELECT * FROM follow_up_reminders WHERE account_id = $1 AND thread_id = $2 AND status = 'pending' LIMIT 1",
     [accountId, threadId],
   );
-  return rows[0] ?? null;
 }
 
 export async function updateFollowUpStatus(

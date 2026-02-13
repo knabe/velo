@@ -48,3 +48,34 @@ export async function withTransaction(fn: (db: Database) => Promise<void>): Prom
     throw err;
   }
 }
+
+/**
+ * Execute a SELECT query and return the first result or null.
+ */
+export async function selectFirstBy<T>(
+  query: string,
+  params: unknown[] = [],
+): Promise<T | null> {
+  const db = await getDb();
+  const rows = await db.select<T[]>(query, params);
+  return rows[0] ?? null;
+}
+
+/**
+ * Execute a COUNT(*) query and return whether any rows exist.
+ */
+export async function existsBy(
+  query: string,
+  params: unknown[] = [],
+): Promise<boolean> {
+  const db = await getDb();
+  const rows = await db.select<{ count: number }[]>(query, params);
+  return (rows[0]?.count ?? 0) > 0;
+}
+
+/**
+ * Convert a boolean to SQLite integer (0 or 1).
+ */
+export function boolToInt(value: boolean | undefined | null): number {
+  return value ? 1 : 0;
+}

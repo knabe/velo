@@ -1,4 +1,4 @@
-import { getDb, buildDynamicUpdate } from "./connection";
+import { getDb, buildDynamicUpdate, selectFirstBy, boolToInt } from "./connection";
 
 export interface DbSignature {
   id: string;
@@ -22,12 +22,10 @@ export async function getSignaturesForAccount(
 export async function getDefaultSignature(
   accountId: string,
 ): Promise<DbSignature | null> {
-  const db = await getDb();
-  const rows = await db.select<DbSignature[]>(
+  return selectFirstBy<DbSignature>(
     "SELECT * FROM signatures WHERE account_id = $1 AND is_default = 1 LIMIT 1",
     [accountId],
   );
-  return rows[0] ?? null;
 }
 
 export async function insertSignature(sig: {
@@ -49,7 +47,7 @@ export async function insertSignature(sig: {
 
   await db.execute(
     "INSERT INTO signatures (id, account_id, name, body_html, is_default) VALUES ($1, $2, $3, $4, $5)",
-    [id, sig.accountId, sig.name, sig.bodyHtml, sig.isDefault ? 1 : 0],
+    [id, sig.accountId, sig.name, sig.bodyHtml, boolToInt(sig.isDefault)],
   );
   return id;
 }
@@ -77,7 +75,7 @@ export async function updateSignature(
   const fields: [string, unknown][] = [];
   if (updates.name !== undefined) fields.push(["name", updates.name]);
   if (updates.bodyHtml !== undefined) fields.push(["body_html", updates.bodyHtml]);
-  if (updates.isDefault !== undefined) fields.push(["is_default", updates.isDefault ? 1 : 0]);
+  if (updates.isDefault !== undefined) fields.push(["is_default", boolToInt(updates.isDefault)]);
 
   const query = buildDynamicUpdate("signatures", "id", id, fields);
   if (query) {

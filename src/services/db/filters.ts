@@ -1,4 +1,4 @@
-import { getDb, buildDynamicUpdate } from "./connection";
+import { getDb, buildDynamicUpdate, boolToInt } from "./connection";
 
 export interface FilterCriteria {
   from?: string;
@@ -62,7 +62,7 @@ export async function insertFilter(filter: {
       id,
       filter.accountId,
       filter.name,
-      filter.isEnabled !== false ? 1 : 0,
+      boolToInt(filter.isEnabled !== false),
       JSON.stringify(filter.criteria),
       JSON.stringify(filter.actions),
     ],
@@ -84,7 +84,7 @@ export async function updateFilter(
   if (updates.name !== undefined) fields.push(["name", updates.name]);
   if (updates.criteria !== undefined) fields.push(["criteria_json", JSON.stringify(updates.criteria)]);
   if (updates.actions !== undefined) fields.push(["actions_json", JSON.stringify(updates.actions)]);
-  if (updates.isEnabled !== undefined) fields.push(["is_enabled", updates.isEnabled ? 1 : 0]);
+  if (updates.isEnabled !== undefined) fields.push(["is_enabled", boolToInt(updates.isEnabled)]);
 
   const query = buildDynamicUpdate("filter_rules", "id", id, fields);
   if (query) {

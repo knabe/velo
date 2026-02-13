@@ -17,6 +17,8 @@ import { ThreadSummary } from "./ThreadSummary";
 import { SmartReplySuggestions } from "./SmartReplySuggestions";
 import { InlineReply } from "./InlineReply";
 import { ContactSidebar } from "./ContactSidebar";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { Button } from "@/components/ui/Button";
 
 interface ThreadViewProps {
   thread: Thread;
@@ -322,62 +324,68 @@ export function ThreadView({ thread }: ThreadViewProps) {
           <div className="flex items-center gap-1">
             {lastMessage && (
               <>
-                <button
+                <Button
+                  variant="secondary"
+                  icon={defaultReplyMode === "replyAll" ? <ReplyAll size={14} /> : <Reply size={14} />}
                   onClick={defaultReplyMode === "replyAll" ? handleReplyAll : handleReply}
                   disabled={noReply}
                   title={noReply ? "This sender does not accept replies" : defaultReplyMode === "replyAll" ? "Reply All (r)" : "Reply (r)"}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-text-secondary"
+                  className="disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text-secondary"
                 >
-                  {defaultReplyMode === "replyAll" ? <ReplyAll size={14} /> : <Reply size={14} />}
                   {defaultReplyMode === "replyAll" ? "Reply All" : "Reply"}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={defaultReplyMode === "replyAll" ? <Reply size={14} /> : <ReplyAll size={14} />}
                   onClick={defaultReplyMode === "replyAll" ? handleReply : handleReplyAll}
                   disabled={noReply}
                   title={noReply ? "This sender does not accept replies" : defaultReplyMode === "replyAll" ? "Reply (a)" : "Reply All (a)"}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-text-secondary"
+                  className="disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text-secondary"
                 >
-                  {defaultReplyMode === "replyAll" ? <Reply size={14} /> : <ReplyAll size={14} />}
                   {defaultReplyMode === "replyAll" ? "Reply" : "Reply All"}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={<Forward size={14} />}
                   onClick={handleForward}
                   title="Forward (f)"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md hover:bg-bg-hover text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  <Forward size={14} />
                   Forward
-                </button>
+                </Button>
               </>
             )}
-            <button
+            <Button
+              variant="secondary"
+              iconOnly
+              size="md"
+              icon={<Printer size={16} />}
               onClick={handlePrint}
               title="Print"
-              className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded transition-colors"
-            >
-              <Printer size={16} />
-            </button>
-            <button
+            />
+            <Button
+              variant="secondary"
+              iconOnly
+              size="md"
+              icon={<Download size={16} />}
               onClick={handleExport}
               title="Export as .eml"
-              className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded transition-colors"
-            >
-              <Download size={16} />
-            </button>
-            <button
+            />
+            <Button
+              variant="secondary"
+              iconOnly
+              size="md"
+              icon={<ExternalLink size={16} />}
               onClick={() => handlePopOut(thread)}
               title="Open in new window"
-              className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded transition-colors"
-            >
-              <ExternalLink size={16} />
-            </button>
-            <button
+            />
+            <Button
+              variant="secondary"
+              iconOnly
+              size="md"
+              icon={contactSidebarVisible ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
               onClick={toggleContactSidebar}
               title={contactSidebarVisible ? "Hide contact sidebar" : "Show contact sidebar"}
-              className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded transition-colors"
-            >
-              {contactSidebarVisible ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
-            </button>
+            />
           </div>
         </div>
 
@@ -395,16 +403,18 @@ export function ThreadView({ thread }: ThreadViewProps) {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto">
-          {messages.map((msg, i) => (
-            <MessageItem
-              key={msg.id}
-              message={msg}
-              isLast={i === messages.length - 1}
-              blockImages={blockImages}
-              senderAllowlisted={msg.from_address ? allowlistedSenders.has(msg.from_address) : false}
-              onContextMenu={(e) => handleMessageContextMenu(e, msg)}
-            />
-          ))}
+          <ErrorBoundary name="MessageList">
+            {messages.map((msg, i) => (
+              <MessageItem
+                key={msg.id}
+                message={msg}
+                isLast={i === messages.length - 1}
+                blockImages={blockImages}
+                senderAllowlisted={msg.from_address ? allowlistedSenders.has(msg.from_address) : false}
+                onContextMenu={(e) => handleMessageContextMenu(e, msg)}
+              />
+            ))}
+          </ErrorBoundary>
 
           {/* Smart Reply Suggestions */}
           {activeAccountId && messages.length > 0 && (

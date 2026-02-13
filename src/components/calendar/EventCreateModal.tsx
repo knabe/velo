@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
-import { X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { TextField } from "@/components/ui/TextField";
 
 interface EventCreateModalProps {
   onClose: () => void;
@@ -26,91 +28,71 @@ export function EventCreateModal({ onClose, onCreate }: EventCreateModalProps) {
   }, [summary, description, location, startTime, endTime, onCreate]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30 glass-backdrop" onClick={onClose} />
-      <div className="relative bg-bg-primary border border-border-primary rounded-lg glass-modal w-full max-w-md">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border-primary">
-          <h3 className="text-sm font-semibold text-text-primary">Create Event</h3>
-          <button onClick={onClose} className="text-text-tertiary hover:text-text-primary">
-            <X size={16} />
-          </button>
+    <Modal isOpen={true} onClose={onClose} title="Create Event" width="w-full max-w-md">
+      <form onSubmit={handleSubmit} className="p-4 space-y-3">
+        <TextField
+          label="Title"
+          type="text"
+          value={summary}
+          onChange={(e) => setSummary(e.target.value)}
+          placeholder="Event title"
+          autoFocus
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <TextField
+            label="Start"
+            type="datetime-local"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+          />
+          <TextField
+            label="End"
+            type="datetime-local"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-3">
-          <div>
-            <label className="text-xs text-text-secondary block mb-1">Title</label>
-            <input
-              type="text"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="Event title"
-              className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
-              autoFocus
-            />
-          </div>
+        <TextField
+          label="Location"
+          type="text"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="Add location"
+        />
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-text-secondary block mb-1">Start</label>
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-text-secondary block mb-1">End</label>
-              <input
-                type="datetime-local"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
-              />
-            </div>
-          </div>
+        <div>
+          <label className="text-xs text-text-secondary block mb-1">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Add description"
+            rows={3}
+            className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent resize-none"
+          />
+        </div>
 
-          <div>
-            <label className="text-xs text-text-secondary block mb-1">Location</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Add location"
-              className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs text-text-secondary block mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add description"
-              rows={3}
-              className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent resize-none"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-1.5 text-xs text-text-secondary hover:text-text-primary rounded-md hover:bg-bg-hover transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!summary.trim()}
-              className="px-4 py-1.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50"
-            >
-              Create
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={!summary.trim()}
+          >
+            Create
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 

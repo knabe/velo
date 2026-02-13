@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-vi.mock("@/services/db/connection", () => ({
-  getDb: vi.fn(),
-}));
+vi.mock("@/services/db/connection", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/services/db/connection")>();
+  return {
+    ...actual,
+    getDb: vi.fn(),
+  };
+});
 
 import { getDb } from "@/services/db/connection";
 import { getAllContacts, updateContact, deleteContact } from "./contacts";

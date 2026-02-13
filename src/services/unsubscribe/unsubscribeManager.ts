@@ -1,6 +1,8 @@
 import { getDb } from "../db/connection";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { fetch } from "@tauri-apps/plugin-http";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
+import { normalizeEmail } from "@/utils/emailUtils";
 
 export interface ParsedUnsubscribe {
   httpUrl: string | null;
@@ -135,13 +137,13 @@ async function recordUnsubscribeAction(
 ): Promise<void> {
   const db = await getDb();
   const id = crypto.randomUUID();
-  const now = Math.floor(Date.now() / 1000);
+  const now = getCurrentUnixTimestamp();
   await db.execute(
     `INSERT INTO unsubscribe_actions (id, account_id, thread_id, from_address, from_name, method, unsubscribe_url, status, unsubscribed_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      ON CONFLICT(account_id, from_address) DO UPDATE SET
        status = $8, unsubscribed_at = $9, method = $6, thread_id = $3`,
-    [id, accountId, threadId, fromAddress.toLowerCase(), fromName, method, url, status, now],
+    [id, accountId, threadId, normalizeEmail(fromAddress), fromName, method, url, status, now],
   );
 }
 
@@ -178,7 +180,7 @@ export async function getUnsubscribeStatus(
   const db = await getDb();
   const rows = await db.select<{ status: string }[]>(
     "SELECT status FROM unsubscribe_actions WHERE account_id = $1 AND from_address = $2",
-    [accountId, fromAddress.toLowerCase()],
+    [accountId, normalizeEmail(fromAddress)],
   );
   return rows[0]?.status ?? null;
 }

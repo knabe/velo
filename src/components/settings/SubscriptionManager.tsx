@@ -18,22 +18,14 @@ export function SubscriptionManager() {
   const [unsubscribingIds, setUnsubscribingIds] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const loadSubscriptions = useCallback(async () => {
+  useEffect(() => {
     if (!activeAccountId) return;
     setLoading(true);
-    try {
-      const subs = await getSubscriptions(activeAccountId);
-      setSubscriptions(subs);
-    } catch (err) {
-      console.error("Failed to load subscriptions:", err);
-    } finally {
-      setLoading(false);
-    }
+    getSubscriptions(activeAccountId)
+      .then((subs) => setSubscriptions(subs))
+      .catch((err) => console.error("Failed to load subscriptions:", err))
+      .finally(() => setLoading(false));
   }, [activeAccountId]);
-
-  useEffect(() => {
-    loadSubscriptions();
-  }, [loadSubscriptions]);
 
   const handleUnsubscribe = useCallback(async (sub: SubscriptionEntry) => {
     if (!activeAccountId || !sub.latest_unsubscribe_header) return;

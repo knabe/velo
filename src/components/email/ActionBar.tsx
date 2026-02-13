@@ -12,6 +12,7 @@ import { FollowUpDialog } from "./FollowUpDialog";
 import { Archive, Trash2, MailOpen, Mail, Star, Clock, Ban, Pin, MailMinus, BellRing, VolumeX } from "lucide-react";
 import type { DbMessage } from "@/services/db/messages";
 import { insertFollowUpReminder, getFollowUpForThread, cancelFollowUpForThread } from "@/services/db/followUpReminders";
+import { Button } from "@/components/ui/Button";
 
 interface ActionBarProps {
   thread: Thread;
@@ -339,13 +340,14 @@ function ActionButton({
   className?: string;
 }) {
   return (
-    <button
+    <Button
+      variant="secondary"
+      icon={icon}
       onClick={onClick}
       title={title}
-      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md hover:bg-bg-hover text-text-secondary hover:text-text-primary interactive-btn ${className}`}
+      className={`interactive-btn ${className}`}
     >
-      {icon}
       {label}
-    </button>
+    </Button>
   );
 }

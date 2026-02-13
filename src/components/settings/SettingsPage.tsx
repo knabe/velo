@@ -46,6 +46,8 @@ import {
   mapDbAlias,
   type SendAsAlias,
 } from "@/services/db/sendAsAliases";
+import { Button } from "@/components/ui/Button";
+import { TextField } from "@/components/ui/TextField";
 
 type SettingsTab = "general" | "composing" | "labels" | "filters" | "smart-folders" | "quickSteps" | "contacts" | "accounts" | "sync" | "shortcuts" | "ai" | "subscriptions" | "developer";
 
@@ -66,9 +68,27 @@ const tabs: { id: SettingsTab; label: string; icon: LucideIcon }[] = [
 ];
 
 export function SettingsPage() {
-  const { theme, setTheme, readingPanePosition, setReadingPanePosition, emailDensity, setEmailDensity, fontScale, setFontScale, colorTheme, setColorTheme, defaultReplyMode, setDefaultReplyMode, markAsReadBehavior, setMarkAsReadBehavior, sendAndArchive, setSendAndArchive, inboxViewMode, setInboxViewMode } = useUIStore();
+  const theme = useUIStore((s) => s.theme);
+  const setTheme = useUIStore((s) => s.setTheme);
+  const readingPanePosition = useUIStore((s) => s.readingPanePosition);
+  const setReadingPanePosition = useUIStore((s) => s.setReadingPanePosition);
+  const emailDensity = useUIStore((s) => s.emailDensity);
+  const setEmailDensity = useUIStore((s) => s.setEmailDensity);
+  const fontScale = useUIStore((s) => s.fontScale);
+  const setFontScale = useUIStore((s) => s.setFontScale);
+  const colorTheme = useUIStore((s) => s.colorTheme);
+  const setColorTheme = useUIStore((s) => s.setColorTheme);
+  const defaultReplyMode = useUIStore((s) => s.defaultReplyMode);
+  const setDefaultReplyMode = useUIStore((s) => s.setDefaultReplyMode);
+  const markAsReadBehavior = useUIStore((s) => s.markAsReadBehavior);
+  const setMarkAsReadBehavior = useUIStore((s) => s.setMarkAsReadBehavior);
+  const sendAndArchive = useUIStore((s) => s.sendAndArchive);
+  const setSendAndArchive = useUIStore((s) => s.setSendAndArchive);
+  const inboxViewMode = useUIStore((s) => s.inboxViewMode);
+  const setInboxViewMode = useUIStore((s) => s.setInboxViewMode);
   const setActiveLabel = useUIStore((s) => s.setActiveLabel);
-  const { accounts, removeAccount: removeAccountFromStore } = useAccountStore();
+  const accounts = useAccountStore((s) => s.accounts);
+  const removeAccountFromStore = useAccountStore((s) => s.removeAccount);
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [undoSendDelay, setUndoSendDelay] = useState("5");
@@ -520,7 +540,8 @@ export function SettingsPage() {
                                 setNewVipEmail("");
                               }}
                             />
-                            <button
+                            <Button
+                              variant="primary"
                               onClick={async () => {
                                 if (!newVipEmail.trim()) return;
                                 const activeId = accounts.find((a) => a.isActive)?.id;
@@ -531,10 +552,9 @@ export function SettingsPage() {
                                 setNewVipEmail("");
                               }}
                               disabled={!newVipEmail.trim()}
-                              className="px-3 py-1.5 text-xs bg-accent text-white rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50"
                             >
                               Add
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </>
@@ -589,7 +609,8 @@ export function SettingsPage() {
                           {cacheSizeMb !== null ? `${cacheSizeMb} MB used` : "Calculating..."}
                         </p>
                       </div>
-                      <button
+                      <Button
+                        variant="secondary"
                         onClick={async () => {
                           setClearingCache(true);
                           try {
@@ -603,10 +624,10 @@ export function SettingsPage() {
                           }
                         }}
                         disabled={clearingCache}
-                        className="px-3 py-1.5 text-xs bg-bg-tertiary text-text-primary border border-border-primary rounded-md hover:bg-bg-hover transition-colors disabled:opacity-50"
+                        className="bg-bg-tertiary text-text-primary border border-border-primary"
                       >
                         {clearingCache ? "Clearing..." : "Clear Cache"}
-                      </button>
+                      </Button>
                     </div>
                     <SettingRow label="Max cache size">
                       <select
@@ -785,33 +806,30 @@ export function SettingsPage() {
 
                   <Section title="Google API">
                     <div className="space-y-3">
-                      <div>
-                        <label className="text-sm text-text-secondary block mb-1.5">Client ID</label>
-                        <input
-                          type="text"
-                          value={clientId}
-                          onChange={(e) => setClientId(e.target.value)}
-                          placeholder="Google OAuth Client ID"
-                          className="w-full px-3 py-2 bg-bg-tertiary border border-border-primary rounded-md text-sm text-text-primary outline-none focus:border-accent"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm text-text-secondary block mb-1.5">Client Secret</label>
-                        <input
-                          type="password"
-                          value={clientSecret}
-                          onChange={(e) => setClientSecret(e.target.value)}
-                          placeholder="Google OAuth Client Secret"
-                          className="w-full px-3 py-2 bg-bg-tertiary border border-border-primary rounded-md text-sm text-text-primary outline-none focus:border-accent"
-                        />
-                      </div>
-                      <button
+                      <TextField
+                        label="Client ID"
+                        size="md"
+                        type="text"
+                        value={clientId}
+                        onChange={(e) => setClientId(e.target.value)}
+                        placeholder="Google OAuth Client ID"
+                      />
+                      <TextField
+                        label="Client Secret"
+                        size="md"
+                        type="password"
+                        value={clientSecret}
+                        onChange={(e) => setClientSecret(e.target.value)}
+                        placeholder="Google OAuth Client Secret"
+                      />
+                      <Button
+                        variant="primary"
+                        size="md"
                         onClick={handleSaveApiSettings}
                         disabled={!clientId.trim()}
-                        className="px-4 py-1.5 text-sm bg-accent text-white rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {apiSettingsSaved ? "Saved!" : "Save"}
-                      </button>
+                      </Button>
                     </div>
                   </Section>
                 </>
@@ -824,14 +842,15 @@ export function SettingsPage() {
                       <span className="text-sm text-text-secondary">
                         Check for new mail
                       </span>
-                      <button
+                      <Button
+                        variant="primary"
+                        size="md"
+                        icon={<RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />}
                         onClick={handleManualSync}
                         disabled={isSyncing || accounts.length === 0}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-white rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
                         {isSyncing ? "Syncing..." : "Sync now"}
-                      </button>
+                      </Button>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
@@ -842,14 +861,16 @@ export function SettingsPage() {
                           Re-download all emails from scratch
                         </p>
                       </div>
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        icon={<RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />}
                         onClick={handleForceFullSync}
                         disabled={isSyncing || accounts.length === 0}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-bg-tertiary text-text-primary border border-border-primary rounded-md hover:bg-bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-bg-tertiary text-text-primary border border-border-primary"
                       >
-                        <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
                         {isSyncing ? "Syncing..." : "Full resync"}
-                      </button>
+                      </Button>
                     </div>
                   </Section>
 
@@ -914,34 +935,34 @@ export function SettingsPage() {
 
                   <Section title="API Key">
                     <div className="space-y-3">
-                      <div>
-                        <label className="text-sm text-text-secondary block mb-1.5">
-                          {aiProvider === "claude" && "Anthropic API Key"}
-                          {aiProvider === "openai" && "OpenAI API Key"}
-                          {aiProvider === "gemini" && "Google AI API Key"}
-                        </label>
-                        <input
-                          type="password"
-                          value={
-                            aiProvider === "claude" ? claudeApiKey
-                            : aiProvider === "openai" ? openaiApiKey
-                            : geminiApiKey
-                          }
-                          onChange={(e) => {
-                            if (aiProvider === "claude") setClaudeApiKey(e.target.value);
-                            else if (aiProvider === "openai") setOpenaiApiKey(e.target.value);
-                            else setGeminiApiKey(e.target.value);
-                          }}
-                          placeholder={
-                            aiProvider === "claude" ? "sk-ant-..."
-                            : aiProvider === "openai" ? "sk-..."
-                            : "AI..."
-                          }
-                          className="w-full px-3 py-2 bg-bg-tertiary border border-border-primary rounded-md text-sm text-text-primary outline-none focus:border-accent"
-                        />
-                      </div>
+                      <TextField
+                        label={
+                          aiProvider === "claude" ? "Anthropic API Key"
+                          : aiProvider === "openai" ? "OpenAI API Key"
+                          : "Google AI API Key"
+                        }
+                        size="md"
+                        type="password"
+                        value={
+                          aiProvider === "claude" ? claudeApiKey
+                          : aiProvider === "openai" ? openaiApiKey
+                          : geminiApiKey
+                        }
+                        onChange={(e) => {
+                          if (aiProvider === "claude") setClaudeApiKey(e.target.value);
+                          else if (aiProvider === "openai") setOpenaiApiKey(e.target.value);
+                          else setGeminiApiKey(e.target.value);
+                        }}
+                        placeholder={
+                          aiProvider === "claude" ? "sk-ant-..."
+                          : aiProvider === "openai" ? "sk-..."
+                          : "AI..."
+                        }
+                      />
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button
+                          variant="primary"
+                          size="md"
                           onClick={async () => {
                             const keySettingMap = {
                               claude: "claude_api_key",
@@ -965,11 +986,12 @@ export function SettingsPage() {
                             : aiProvider === "openai" ? openaiApiKey.trim()
                             : geminiApiKey.trim())
                           }
-                          className="px-4 py-1.5 text-sm bg-accent text-white rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {aiKeySaved ? "Saved!" : "Save Key"}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="md"
                           onClick={async () => {
                             setAiTesting(true);
                             setAiTestResult(null);
@@ -988,10 +1010,10 @@ export function SettingsPage() {
                             : aiProvider === "openai" ? openaiApiKey.trim()
                             : geminiApiKey.trim()) || aiTesting
                           }
-                          className="px-4 py-1.5 text-sm bg-bg-tertiary text-text-primary border border-border-primary rounded-md hover:bg-bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-bg-tertiary text-text-primary border border-border-primary"
                         >
                           {aiTesting ? "Testing..." : "Test Connection"}
-                        </button>
+                        </Button>
                         {aiTestResult === "success" && (
                           <span className="text-xs text-success">Connected!</span>
                         )}
@@ -1089,7 +1111,7 @@ export function SettingsPage() {
 }
 
 function SendAsAliasesSection() {
-  const { accounts } = useAccountStore();
+  const accounts = useAccountStore((s) => s.accounts);
   const [aliases, setAliases] = useState<SendAsAlias[]>([]);
 
   useEffect(() => {
@@ -1211,15 +1233,17 @@ function DeveloperTab() {
               Open the WebView developer tools inspector
             </p>
           </div>
-          <button
+          <Button
+            variant="secondary"
+            size="md"
             onClick={async () => {
               const { invoke } = await import("@tauri-apps/api/core");
               await invoke("open_devtools");
             }}
-            className="px-3 py-1.5 text-sm bg-bg-tertiary text-text-primary border border-border-primary rounded-md hover:bg-bg-hover transition-colors"
+            className="bg-bg-tertiary text-text-primary border border-border-primary"
           >
             Open DevTools
-          </button>
+          </Button>
         </div>
       </Section>
     </>
@@ -1236,7 +1260,10 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function ShortcutsTab() {
-  const { keyMap, setKey, resetKey, resetAll } = useShortcutStore();
+  const keyMap = useShortcutStore((s) => s.keyMap);
+  const setKey = useShortcutStore((s) => s.setKey);
+  const resetKey = useShortcutStore((s) => s.resetKey);
+  const resetAll = useShortcutStore((s) => s.resetAll);
   const defaults = getDefaultKeyMap();
   const [recordingId, setRecordingId] = useState<string | null>(null);
   const [composeShortcut, setComposeShortcut] = useState(DEFAULT_SHORTCUT);
@@ -1424,7 +1451,7 @@ function SettingRow({
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function BundleSettings() {
-  const { accounts } = useAccountStore();
+  const accounts = useAccountStore((s) => s.accounts);
   const activeAccountId = accounts.find((a) => a.isActive)?.id;
   const [rules, setRules] = useState<Record<string, { bundled: boolean; delivery: boolean; days: number[]; hour: number; minute: number }>>({});
 

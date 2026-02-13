@@ -1,4 +1,5 @@
-import { getDb } from "./connection";
+import { getDb, selectFirstBy, existsBy, boolToInt } from "./connection";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
 export interface DeliverySchedule {
   days: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
@@ -36,12 +37,10 @@ export async function getBundleRule(
   accountId: string,
   category: string,
 ): Promise<DbBundleRule | null> {
-  const db = await getDb();
-  const rows = await db.select<DbBundleRule[]>(
+  return selectFirstBy<DbBundleRule>(
     "SELECT * FROM bundle_rules WHERE account_id = $1 AND category = $2",
     [accountId, category],
   );
-  return rows[0] ?? null;
 }
 
 export async function setBundleRule(
@@ -58,7 +57,7 @@ export async function setBundleRule(
      VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT(account_id, category) DO UPDATE SET
        is_bundled = $4, delivery_enabled = $5, delivery_schedule = $6`,
-    [id, accountId, category, isBundled ? 1 : 0, deliveryEnabled ? 1 : 0, schedule ? JSON.stringify(schedule) : null],
+    [id, accountId, category, boolToInt(isBundled), boolToInt(deliveryEnabled), schedule ? JSON.stringify(schedule) : null],
   );
 }
 
@@ -82,20 +81,18 @@ export async function isThreadHeld(
   accountId: string,
   threadId: string,
 ): Promise<boolean> {
-  const db = await getDb();
-  const now = Math.floor(Date.now() / 1000);
-  const rows = await db.select<{ count: number }[]>(
+  const now = getCurrentUnixTimestamp();
+  return existsBy(
     "SELECT COUNT(*) as count FROM bundled_threads WHERE account_id = $1 AND thread_id = $2 AND held_until > $3",
     [accountId, threadId, now],
   );
-  return (rows[0]?.count ?? 0) > 0;
 }
 
 export async function getHeldThreadIds(
   accountId: string,
 ): Promise<Set<string>> {
   const db = await getDb();
-  const now = Math.floor(Date.now() / 1000);
+  const now = getCurrentUnixTimestamp();
   const rows = await db.select<{ thread_id: string }[]>(
     "SELECT thread_id FROM bundled_threads WHERE account_id = $1 AND held_until > $2",
     [accountId, now],
@@ -120,7 +117,7 @@ export async function updateLastDelivered(
   category: string,
 ): Promise<void> {
   const db = await getDb();
-  const now = Math.floor(Date.now() / 1000);
+  const now = getCurrentUnixTimestamp();
   await db.execute(
     "UPDATE bundle_rules SET last_delivered_at = $1 WHERE account_id = $2 AND category = $3",
     [now, accountId, category],

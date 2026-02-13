@@ -6,6 +6,7 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
 import { Trash2, Pencil } from "lucide-react";
+import { TextField } from "@/components/ui/TextField";
 import { EditorToolbar } from "@/components/composer/EditorToolbar";
 import { useAccountStore } from "@/stores/accountStore";
 import {
@@ -48,7 +49,8 @@ export function SignatureEditor() {
 
   useEffect(() => {
     loadSignatures();
-  }, [loadSignatures]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadSignatures is stable, only re-run on activeAccountId change
+  }, [activeAccountId]);
 
   const resetForm = useCallback(() => {
     setName("");
@@ -128,12 +130,11 @@ export function SignatureEditor() {
 
       {showForm ? (
         <div className="border border-border-primary rounded-md p-3 space-y-2">
-          <input
+          <TextField
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Signature name"
-            className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
           />
           <div className="border border-border-primary rounded overflow-hidden bg-bg-tertiary">
             <EditorToolbar editor={editor} />

@@ -8,6 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
 import { Clock } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
 import { AddressInput } from "./AddressInput";
 import { EditorToolbar } from "./EditorToolbar";
 import { AiAssistPanel } from "./AiAssistPanel";
@@ -557,12 +558,12 @@ export function Composer() {
             <TemplatePicker editor={editor} />
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="secondary"
               onClick={handleDiscard}
-              className="px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary hover:bg-bg-hover rounded-md transition-colors"
             >
               Discard
-            </button>
+            </Button>
             <div className="flex items-center">
               <button
                 onClick={handleSend}

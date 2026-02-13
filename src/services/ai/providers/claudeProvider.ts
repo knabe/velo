@@ -1,20 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { AiProviderClient, AiCompletionRequest } from "../types";
 import { DEFAULT_MODELS } from "../types";
+import { createProviderFactory } from "../providerFactory";
 
-let clientInstance: Anthropic | null = null;
-let currentKey: string | null = null;
+const factory = createProviderFactory(
+  (apiKey) => new Anthropic({ apiKey, dangerouslyAllowBrowser: true }),
+);
 
 export function createClaudeProvider(apiKey: string): AiProviderClient {
-  if (!clientInstance || currentKey !== apiKey) {
-    clientInstance = new Anthropic({
-      apiKey,
-      dangerouslyAllowBrowser: true,
-    });
-    currentKey = apiKey;
-  }
-
-  const client = clientInstance;
+  const client = factory.getClient(apiKey);
 
   return {
     async complete(req: AiCompletionRequest): Promise<string> {
@@ -45,6 +39,5 @@ export function createClaudeProvider(apiKey: string): AiProviderClient {
 }
 
 export function clearClaudeProvider(): void {
-  clientInstance = null;
-  currentKey = null;
+  factory.clear();
 }

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import type { Thread } from "@/stores/threadStore";
 import { useThreadStore } from "@/stores/threadStore";
@@ -23,7 +24,7 @@ interface ThreadCardProps {
   hasFollowUp?: boolean;
 }
 
-export function ThreadCard({ thread, isSelected, onClick, onContextMenu, category, showCategoryBadge, hasFollowUp }: ThreadCardProps) {
+export const ThreadCard = memo(function ThreadCard({ thread, isSelected, onClick, onContextMenu, category, showCategoryBadge, hasFollowUp }: ThreadCardProps) {
   const isMultiSelected = useThreadStore((s) => s.selectedThreadIds.has(thread.id));
   const hasMultiSelect = useThreadStore((s) => s.selectedThreadIds.size > 0);
   const selectedThreadIds = useThreadStore((s) => s.selectedThreadIds);
@@ -172,4 +173,4 @@ export function ThreadCard({ thread, isSelected, onClick, onContextMenu, categor
 
     </button>
   );
-}
+});

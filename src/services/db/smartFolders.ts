@@ -1,4 +1,4 @@
-import { getDb, buildDynamicUpdate } from "./connection";
+import { getDb, buildDynamicUpdate, selectFirstBy } from "./connection";
 
 export interface DbSmartFolder {
   id: string;
@@ -33,12 +33,10 @@ export async function getSmartFolders(
 export async function getSmartFolderById(
   id: string,
 ): Promise<DbSmartFolder | null> {
-  const db = await getDb();
-  const rows = await db.select<DbSmartFolder[]>(
+  return selectFirstBy<DbSmartFolder>(
     "SELECT * FROM smart_folders WHERE id = $1",
     [id],
   );
-  return rows[0] ?? null;
 }
 
 export async function insertSmartFolder(folder: {

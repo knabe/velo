@@ -1,4 +1,5 @@
 import { getDb } from "./connection";
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
 export interface DbScheduledEmail {
   id: string;
@@ -19,7 +20,7 @@ export interface DbScheduledEmail {
 
 export async function getPendingScheduledEmails(): Promise<DbScheduledEmail[]> {
   const db = await getDb();
-  const now = Math.floor(Date.now() / 1000);
+  const now = getCurrentUnixTimestamp();
   return db.select<DbScheduledEmail[]>(
     "SELECT * FROM scheduled_emails WHERE status = 'pending' AND scheduled_at <= $1 ORDER BY scheduled_at ASC",
     [now],

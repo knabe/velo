@@ -5,8 +5,8 @@ import {
   type DeliverySchedule,
 } from "../db/bundleRules";
 import { getAllAccounts } from "../db/accounts";
-
-let bundleInterval: ReturnType<typeof setInterval> | null = null;
+import { getCurrentUnixTimestamp } from "@/utils/timestamp";
+import { createBackgroundChecker } from "../backgroundCheckers";
 
 /**
  * Check if the current time matches a delivery schedule.
@@ -28,52 +28,39 @@ function isDeliveryTime(schedule: DeliverySchedule): boolean {
  * Check all delivery schedules and release held threads when delivery time arrives.
  */
 async function checkBundleDelivery(): Promise<void> {
-  try {
-    const accounts = await getAllAccounts();
+  const accounts = await getAllAccounts();
 
-    for (const account of accounts) {
-      if (!account.is_active) continue;
+  for (const account of accounts) {
+    if (!account.is_active) continue;
 
-      const rules = await getBundleRules(account.id);
+    const rules = await getBundleRules(account.id);
 
-      for (const rule of rules) {
-        if (!rule.delivery_enabled || !rule.delivery_schedule) continue;
+    for (const rule of rules) {
+      if (!rule.delivery_enabled || !rule.delivery_schedule) continue;
 
-        let schedule: DeliverySchedule;
-        try {
-          schedule = JSON.parse(rule.delivery_schedule) as DeliverySchedule;
-        } catch {
-          continue;
-        }
+      let schedule: DeliverySchedule;
+      try {
+        schedule = JSON.parse(rule.delivery_schedule) as DeliverySchedule;
+      } catch {
+        continue;
+      }
 
-        if (isDeliveryTime(schedule)) {
-          // Avoid double-delivery: check last_delivered_at
-          const now = Math.floor(Date.now() / 1000);
-          if (rule.last_delivered_at && now - rule.last_delivered_at < 120) continue;
+      if (isDeliveryTime(schedule)) {
+        // Avoid double-delivery: check last_delivered_at
+        const now = getCurrentUnixTimestamp();
+        if (rule.last_delivered_at && now - rule.last_delivered_at < 120) continue;
 
-          const released = await releaseHeldThreads(account.id, rule.category);
-          if (released > 0) {
-            await updateLastDelivered(account.id, rule.category);
-            // Refresh UI
-            window.dispatchEvent(new Event("velo-sync-done"));
-          }
+        const released = await releaseHeldThreads(account.id, rule.category);
+        if (released > 0) {
+          await updateLastDelivered(account.id, rule.category);
+          // Refresh UI
+          window.dispatchEvent(new Event("velo-sync-done"));
         }
       }
     }
-  } catch (err) {
-    console.error("Failed to check bundle delivery:", err);
   }
 }
 
-export function startBundleChecker(): void {
-  if (bundleInterval) return;
-  checkBundleDelivery();
-  bundleInterval = setInterval(checkBundleDelivery, 60_000);
-}
-
-export function stopBundleChecker(): void {
-  if (bundleInterval) {
-    clearInterval(bundleInterval);
-    bundleInterval = null;
-  }
-}
+const bundleChecker = createBackgroundChecker("Bundle", checkBundleDelivery);
+export const startBundleChecker = bundleChecker.start;
+export const stopBundleChecker = bundleChecker.stop;

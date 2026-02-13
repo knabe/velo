@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Trash2, Pencil } from "lucide-react";
+import { TextField } from "@/components/ui/TextField";
 import { useAccountStore } from "@/stores/accountStore";
 import { getLabelsForAccount, type DbLabel } from "@/services/db/labels";
 import {
@@ -38,16 +39,14 @@ export function FilterEditor() {
     setFilters(f);
   }, [activeAccountId]);
 
-  const loadLabels = useCallback(async () => {
-    if (!activeAccountId) return;
-    const l = await getLabelsForAccount(activeAccountId);
-    setLabels(l.filter((lb) => lb.type === "user"));
-  }, [activeAccountId]);
-
   useEffect(() => {
+    if (!activeAccountId) return;
     loadFilters();
-    loadLabels();
-  }, [loadFilters, loadLabels]);
+    getLabelsForAccount(activeAccountId).then((l) =>
+      setLabels(l.filter((lb) => lb.type === "user")),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadFilters is stable, only re-run on activeAccountId change
+  }, [activeAccountId]);
 
   const resetForm = useCallback(() => {
     setName("");
@@ -205,44 +204,39 @@ export function FilterEditor() {
 
       {showForm ? (
         <div className="border border-border-primary rounded-md p-3 space-y-3">
-          <input
+          <TextField
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Filter name"
-            className="w-full px-3 py-1.5 bg-bg-tertiary border border-border-primary rounded text-sm text-text-primary outline-none focus:border-accent"
           />
 
           <div>
             <div className="text-xs font-medium text-text-secondary mb-1.5">Match criteria</div>
             <div className="space-y-1.5">
-              <input
+              <TextField
                 type="text"
                 value={criteriaFrom}
                 onChange={(e) => setCriteriaFrom(e.target.value)}
                 placeholder="From contains..."
-                className="w-full px-3 py-1 bg-bg-tertiary border border-border-primary rounded text-xs text-text-primary outline-none focus:border-accent"
               />
-              <input
+              <TextField
                 type="text"
                 value={criteriaTo}
                 onChange={(e) => setCriteriaTo(e.target.value)}
                 placeholder="To contains..."
-                className="w-full px-3 py-1 bg-bg-tertiary border border-border-primary rounded text-xs text-text-primary outline-none focus:border-accent"
               />
-              <input
+              <TextField
                 type="text"
                 value={criteriaSubject}
                 onChange={(e) => setCriteriaSubject(e.target.value)}
                 placeholder="Subject contains..."
-                className="w-full px-3 py-1 bg-bg-tertiary border border-border-primary rounded text-xs text-text-primary outline-none focus:border-accent"
               />
-              <input
+              <TextField
                 type="text"
                 value={criteriaBody}
                 onChange={(e) => setCriteriaBody(e.target.value)}
                 placeholder="Body contains..."
-                className="w-full px-3 py-1 bg-bg-tertiary border border-border-primary rounded text-xs text-text-primary outline-none focus:border-accent"
               />
               <label className="flex items-center gap-1.5 text-xs text-text-secondary">
                 <input

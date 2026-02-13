@@ -54,6 +54,7 @@ import { DndProvider } from "./components/dnd/DndProvider";
 import { TitleBar } from "./components/layout/TitleBar";
 import { useShortcutStore } from "./stores/shortcutStore";
 import { ContextMenuPortal } from "./components/ui/ContextMenuPortal";
+import { ErrorBoundary } from "./components/ui/ErrorBoundary";
 import { getThemeById, COLOR_THEMES } from "./constants/themes";
 import type { ColorThemeId } from "./constants/themes";
 
@@ -310,7 +311,8 @@ export default function App() {
       unregisterComposeShortcut();
       deepLinkCleanupRef?.();
     };
-  }, [setAccounts, setTheme, setSidebarCollapsed, setContactSidebarVisible, setReadingPanePosition, setReadFilter, setEmailListWidth, setEmailDensity, setDefaultReplyMode, setMarkAsReadBehavior, setSendAndArchive, setFontScale, setColorTheme]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- store setters are stable references
+  }, []);
 
   // Listen for sync status updates
   const backfillDoneRef = useRef(false);
@@ -458,20 +460,34 @@ export default function App() {
       <TitleBar />
       <div className="flex flex-1 min-w-0 overflow-hidden">
         <DndProvider>
-          <Sidebar
-            collapsed={sidebarCollapsed}
-            onAddAccount={() => setShowAddAccount(true)}
-          />
+          <ErrorBoundary name="Sidebar">
+            <Sidebar
+              collapsed={sidebarCollapsed}
+              onAddAccount={() => setShowAddAccount(true)}
+            />
+          </ErrorBoundary>
           {activeLabel === "settings" ? (
-            <SettingsPage />
+            <ErrorBoundary name="SettingsPage">
+              <SettingsPage />
+            </ErrorBoundary>
           ) : activeLabel === "calendar" ? (
-            <CalendarPage />
+            <ErrorBoundary name="CalendarPage">
+              <CalendarPage />
+            </ErrorBoundary>
           ) : readingPanePosition === "right" ? (
-            <ResizableEmailLayout />
+            <ErrorBoundary name="EmailLayout">
+              <ResizableEmailLayout />
+            </ErrorBoundary>
           ) : (
             <div className={`flex flex-1 min-w-0 ${readingPanePosition === "bottom" ? "flex-col" : "flex-row"}`}>
-              <EmailList />
-              {readingPanePosition !== "hidden" && <ReadingPane />}
+              <ErrorBoundary name="EmailList">
+                <EmailList />
+              </ErrorBoundary>
+              {readingPanePosition !== "hidden" && (
+                <ErrorBoundary name="ReadingPane">
+                  <ReadingPane />
+                </ErrorBoundary>
+              )}
             </div>
           )}
         </DndProvider>
@@ -491,20 +507,26 @@ export default function App() {
         />
       )}
 
-      <Composer />
+      <ErrorBoundary name="Composer">
+        <Composer />
+      </ErrorBoundary>
       <UndoSendToast />
-      <CommandPalette
-        isOpen={showCommandPalette}
-        onClose={() => setShowCommandPalette(false)}
-      />
+      <ErrorBoundary name="CommandPalette">
+        <CommandPalette
+          isOpen={showCommandPalette}
+          onClose={() => setShowCommandPalette(false)}
+        />
+      </ErrorBoundary>
       <ShortcutsHelp
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
       />
-      <AskInbox
-        isOpen={showAskInbox}
-        onClose={() => setShowAskInbox(false)}
-      />
+      <ErrorBoundary name="AskInbox">
+        <AskInbox
+          isOpen={showAskInbox}
+          onClose={() => setShowAskInbox(false)}
+        />
+      </ErrorBoundary>
       <ContextMenuPortal />
     </div>
   );

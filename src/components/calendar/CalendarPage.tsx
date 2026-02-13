@@ -129,7 +129,8 @@ export function CalendarPage() {
 
   useEffect(() => {
     loadEvents();
-  }, [loadEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadEvents is stable, only re-run when account or calendar view/date changes
+  }, [activeAccountId, currentDate, view]);
 
   const handlePrev = useCallback(() => {
     setCurrentDate((d) => {

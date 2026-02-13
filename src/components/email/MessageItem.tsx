@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 import { formatFullDate } from "@/utils/date";
 import { EmailRenderer } from "./EmailRenderer";
 import { InlineAttachmentPreview } from "./InlineAttachmentPreview";
@@ -19,7 +19,7 @@ interface MessageItemProps {
   onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export function MessageItem({ message, isLast, blockImages, senderAllowlisted, accountId, threadId, onContextMenu }: MessageItemProps) {
+export const MessageItem = memo(function MessageItem({ message, isLast, blockImages, senderAllowlisted, accountId, threadId, onContextMenu }: MessageItemProps) {
   const [expanded, setExpanded] = useState(isLast);
   const [attachments, setAttachments] = useState<DbAttachment[]>([]);
   const [, setPreviewAttachment] = useState<DbAttachment | null>(null);
@@ -142,7 +142,7 @@ export function MessageItem({ message, isLast, blockImages, senderAllowlisted, a
       )}
     </div>
   );
-}
+});
 
 export function parseUnsubscribeUrl(header: string): string | null {
   // Prefer https URL over mailto

@@ -1,17 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AiProviderClient, AiCompletionRequest } from "../types";
 import { DEFAULT_MODELS } from "../types";
+import { createProviderFactory } from "../providerFactory";
 
-let clientInstance: GoogleGenerativeAI | null = null;
-let currentKey: string | null = null;
+const factory = createProviderFactory(
+  (apiKey) => new GoogleGenerativeAI(apiKey),
+);
 
 export function createGeminiProvider(apiKey: string): AiProviderClient {
-  if (!clientInstance || currentKey !== apiKey) {
-    clientInstance = new GoogleGenerativeAI(apiKey);
-    currentKey = apiKey;
-  }
-
-  const client = clientInstance;
+  const client = factory.getClient(apiKey);
 
   return {
     async complete(req: AiCompletionRequest): Promise<string> {
@@ -39,6 +36,5 @@ export function createGeminiProvider(apiKey: string): AiProviderClient {
 }
 
 export function clearGeminiProvider(): void {
-  clientInstance = null;
-  currentKey = null;
+  factory.clear();
 }

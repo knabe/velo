@@ -1,4 +1,4 @@
-import { getDb, buildDynamicUpdate } from "./connection";
+import { getDb, buildDynamicUpdate, boolToInt } from "./connection";
 import type { QuickStepAction } from "../quickSteps/types";
 
 export interface DbQuickStep {
@@ -57,8 +57,8 @@ export async function insertQuickStep(step: {
       step.shortcut ?? null,
       JSON.stringify(step.actions),
       step.icon ?? null,
-      step.isEnabled !== false ? 1 : 0,
-      step.continueOnError ? 1 : 0,
+      boolToInt(step.isEnabled !== false),
+      boolToInt(step.continueOnError),
     ],
   );
   return id;
@@ -83,8 +83,8 @@ export async function updateQuickStep(
   if (updates.shortcut !== undefined) fields.push(["shortcut", updates.shortcut]);
   if (updates.actions !== undefined) fields.push(["actions_json", JSON.stringify(updates.actions)]);
   if (updates.icon !== undefined) fields.push(["icon", updates.icon]);
-  if (updates.isEnabled !== undefined) fields.push(["is_enabled", updates.isEnabled ? 1 : 0]);
-  if (updates.continueOnError !== undefined) fields.push(["continue_on_error", updates.continueOnError ? 1 : 0]);
+  if (updates.isEnabled !== undefined) fields.push(["is_enabled", boolToInt(updates.isEnabled)]);
+  if (updates.continueOnError !== undefined) fields.push(["continue_on_error", boolToInt(updates.continueOnError)]);
 
   const query = buildDynamicUpdate("quick_steps", "id", id, fields);
   if (query) {

@@ -1,4 +1,4 @@
-import { getDb } from "./connection";
+import { getDb, selectFirstBy } from "./connection";
 import { encryptValue, decryptValue, isEncrypted } from "@/utils/crypto";
 
 export interface DbAccount {
@@ -43,24 +43,20 @@ export async function getAllAccounts(): Promise<DbAccount[]> {
 }
 
 export async function getAccount(id: string): Promise<DbAccount | null> {
-  const db = await getDb();
-  const rows = await db.select<DbAccount[]>(
+  const account = await selectFirstBy<DbAccount>(
     "SELECT * FROM accounts WHERE id = $1",
     [id],
   );
-  const account = rows[0] ?? null;
   return account ? decryptAccountTokens(account) : null;
 }
 
 export async function getAccountByEmail(
   email: string,
 ): Promise<DbAccount | null> {
-  const db = await getDb();
-  const rows = await db.select<DbAccount[]>(
+  const account = await selectFirstBy<DbAccount>(
     "SELECT * FROM accounts WHERE email = $1",
     [email],
   );
-  const account = rows[0] ?? null;
   return account ? decryptAccountTokens(account) : null;
 }
 

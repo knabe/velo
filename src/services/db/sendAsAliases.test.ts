@@ -1,8 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-vi.mock("@/services/db/connection", () => ({
-  getDb: vi.fn(),
+const { mockGetDb } = vi.hoisted(() => ({
+  mockGetDb: vi.fn(),
 }));
+
+vi.mock("@/services/db/connection", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/services/db/connection")>();
+  return {
+    ...actual,
+    getDb: mockGetDb,
+    selectFirstBy: async (query: string, params: unknown[] = []) => {
+      const db = await mockGetDb();
+      const rows = await db.select(query, params);
+      return rows[0] ?? null;
+    },
+  };
+});
 
 import { getDb } from "@/services/db/connection";
 import {

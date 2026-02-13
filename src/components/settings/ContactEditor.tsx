@@ -20,7 +20,8 @@ export function ContactEditor() {
 
   useEffect(() => {
     loadContacts();
-  }, [loadContacts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadContacts is stable (no deps), run once on mount
+  }, []);
 
   const filtered = search
     ? contacts.filter(
