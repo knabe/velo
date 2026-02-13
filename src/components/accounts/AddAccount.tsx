@@ -3,6 +3,7 @@ import { startOAuthFlow } from "@/services/gmail/auth";
 import { insertAccount } from "@/services/db/accounts";
 import { getClientId, getClientSecret } from "@/services/gmail/tokenManager";
 import { useAccountStore } from "@/stores/accountStore";
+import { Modal } from "@/components/ui/Modal";
 import { SetupClientId } from "./SetupClientId";
 import { getCurrentUnixTimestamp } from "@/utils/timestamp";
 
@@ -78,9 +79,8 @@ export function AddAccount({ onClose, onSuccess }: AddAccountProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 glass-backdrop">
-      <div className="bg-bg-primary border border-border-primary rounded-xl glass-modal w-full max-w-md p-6">
-        <h2 className="text-lg font-semibold mb-2">Add Gmail Account</h2>
+    <Modal isOpen={true} onClose={onClose} title="Add Gmail Account" width="w-full max-w-md">
+      <div className="p-4">
         <p className="text-text-secondary text-sm mb-6">
           Sign in with your Google account to connect it to Velo.
         </p>
@@ -120,6 +120,6 @@ export function AddAccount({ onClose, onSuccess }: AddAccountProps) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
+import { InputDialog } from "@/components/ui/InputDialog";
 import { Sparkles } from "lucide-react";
 
 interface EditorToolbarProps {
@@ -10,6 +11,7 @@ interface EditorToolbarProps {
 
 export function EditorToolbar({ editor, onToggleAiAssist, aiAssistOpen }: EditorToolbarProps) {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
 
   if (!editor) return null;
 
@@ -70,10 +72,7 @@ export function EditorToolbar({ editor, onToggleAiAssist, aiAssistOpen }: Editor
         if (editor.isActive("link")) {
           editor.chain().focus().unsetLink().run();
         } else {
-          const url = window.prompt("Enter URL:");
-          if (url) {
-            editor.chain().focus().setLink({ href: url }).run();
-          }
+          setShowLinkDialog(true);
         }
       })}
       <input
@@ -103,6 +102,18 @@ export function EditorToolbar({ editor, onToggleAiAssist, aiAssistOpen }: Editor
 
       {btn("Undo", false, () => editor.chain().focus().undo().run())}
       {btn("Redo", false, () => editor.chain().focus().redo().run())}
+      <InputDialog
+        isOpen={showLinkDialog}
+        onClose={() => setShowLinkDialog(false)}
+        onSubmit={(values) => {
+          if (values.url) {
+            editor.chain().focus().setLink({ href: values.url }).run();
+          }
+        }}
+        title="Insert Link"
+        fields={[{ key: "url", label: "URL", placeholder: "https://..." }]}
+        submitLabel="Insert"
+      />
     </div>
   );
 }

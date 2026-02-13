@@ -3,7 +3,8 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { getAttachmentsForMessage, type DbAttachment } from "@/services/db/attachments";
 import { getGmailClient } from "@/services/gmail/tokenManager";
-import { Download, X, Eye } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { Download, Eye } from "lucide-react";
 import { formatFileSize, isImage, isPdf, isText, canPreview, getFileIcon } from "@/utils/fileTypeHelpers";
 
 interface AttachmentListProps {
@@ -149,76 +150,80 @@ function AttachmentPreview({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={handleClose} />
-      <div className="relative bg-bg-primary border border-border-primary rounded-lg shadow-xl flex flex-col max-w-[90vw] max-h-[85vh] w-[800px]">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-border-primary flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <span>{getFileIcon(attachment.mime_type)}</span>
-            <span className="text-sm font-medium text-text-primary truncate">
-              {attachment.filename ?? "Unnamed"}
-            </span>
-            {attachment.size != null && (
-              <span className="text-xs text-text-tertiary whitespace-nowrap">
-                ({formatFileSize(attachment.size)})
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0 ml-4">
-            <button
-              onClick={handleDownload}
-              disabled={saving}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50"
-            >
-              <Download size={13} />
-              {saving ? "Saving..." : "Download"}
-            </button>
-            <button
-              onClick={handleClose}
-              className="text-text-tertiary hover:text-text-primary p-1 rounded hover:bg-bg-hover transition-colors"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-
-        {/* Preview content */}
-        <div className="flex-1 overflow-auto min-h-[200px] flex items-center justify-center p-4">
-          {loading && (
-            <p className="text-sm text-text-tertiary">Loading preview...</p>
-          )}
-          {error && (
-            <p className="text-sm text-text-tertiary">{error}</p>
-          )}
-          {!loading && !error && blobUrl && isImage(attachment.mime_type) && (
-            <img
-              src={blobUrl}
-              alt={attachment.filename ?? "Attachment"}
-              className="max-w-full max-h-[70vh] object-contain rounded"
-            />
-          )}
-          {!loading && !error && blobUrl && isPdf(attachment.mime_type, attachment.filename) && (
-            <iframe
-              src={blobUrl}
-              title={attachment.filename ?? "PDF preview"}
-              className="w-full h-[70vh] border-0 rounded"
-            />
-          )}
-          {!loading && !error && blobUrl && isText(attachment.mime_type) && (
-            <TextPreview url={blobUrl} />
-          )}
-          {!isPreviewable && !loading && (
-            <div className="flex flex-col items-center gap-3 text-text-tertiary">
-              <Eye size={40} strokeWidth={1} />
-              <p className="text-sm">Preview not available for this file type</p>
-              <p className="text-xs">{attachment.mime_type ?? "Unknown type"}</p>
-            </div>
-          )}
-        </div>
+  const header = (
+    <div className="px-4 py-3 border-b border-border-primary flex items-center justify-between shrink-0">
+      <div className="flex items-center gap-2 min-w-0">
+        <span>{getFileIcon(attachment.mime_type)}</span>
+        <span className="text-sm font-medium text-text-primary truncate">
+          {attachment.filename ?? "Unnamed"}
+        </span>
+        {attachment.size != null && (
+          <span className="text-xs text-text-tertiary whitespace-nowrap">
+            ({formatFileSize(attachment.size)})
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-2 shrink-0 ml-4">
+        <button
+          onClick={handleDownload}
+          disabled={saving}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-colors disabled:opacity-50"
+        >
+          <Download size={13} />
+          {saving ? "Saving..." : "Download"}
+        </button>
+        <button
+          onClick={handleClose}
+          className="text-text-tertiary hover:text-text-primary text-lg leading-none"
+        >
+          ×
+        </button>
       </div>
     </div>
+  );
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={handleClose}
+      title={attachment.filename ?? "Attachment"}
+      width="w-[800px]"
+      panelClassName="max-w-[90vw] max-h-[85vh] flex flex-col"
+      renderHeader={header}
+    >
+      <div className="flex-1 overflow-auto min-h-[200px] flex items-center justify-center p-4">
+        {loading && (
+          <p className="text-sm text-text-tertiary">Loading preview...</p>
+        )}
+        {error && (
+          <p className="text-sm text-text-tertiary">{error}</p>
+        )}
+        {!loading && !error && blobUrl && isImage(attachment.mime_type) && (
+          <img
+            src={blobUrl}
+            alt={attachment.filename ?? "Attachment"}
+            className="max-w-full max-h-[70vh] object-contain rounded"
+          />
+        )}
+        {!loading && !error && blobUrl && isPdf(attachment.mime_type, attachment.filename) && (
+          <iframe
+            src={blobUrl}
+            title={attachment.filename ?? "PDF preview"}
+            className="w-full h-[70vh] border-0 rounded"
+          />
+        )}
+        {!loading && !error && blobUrl && isText(attachment.mime_type) && (
+          <TextPreview url={blobUrl} />
+        )}
+        {!isPreviewable && !loading && (
+          <div className="flex flex-col items-center gap-3 text-text-tertiary">
+            <Eye size={40} strokeWidth={1} />
+            <p className="text-sm">Preview not available for this file type</p>
+            <p className="text-xs">{attachment.mime_type ?? "Unknown type"}</p>
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }
 

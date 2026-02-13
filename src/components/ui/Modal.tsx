@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
 
 interface ModalProps {
@@ -36,7 +37,7 @@ export function Modal({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  return (
+  return createPortal(
     <CSSTransition in={isOpen} timeout={150} classNames="modal" unmountOnExit nodeRef={nodeRef}>
       <div ref={nodeRef} className={`fixed inset-0 ${zIndex} flex items-center justify-center`}>
         <div className="absolute inset-0 bg-black/20 glass-backdrop" onClick={onClose} />
@@ -59,6 +60,7 @@ export function Modal({
           {children}
         </div>
       </div>
-    </CSSTransition>
+    </CSSTransition>,
+    document.body,
   );
 }

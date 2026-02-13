@@ -1,8 +1,9 @@
-import { useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { searchMessages } from "@/services/db/search";
 import { useAccountStore } from "@/stores/accountStore";
 import { useThreadStore } from "@/stores/threadStore";
 import { useSmartFolderStore } from "@/stores/smartFolderStore";
+import { InputDialog } from "@/components/ui/InputDialog";
 import { Search, X, FolderPlus } from "lucide-react";
 
 export function SearchBar() {
@@ -14,13 +15,12 @@ export function SearchBar() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSaveAsSmartFolder = useCallback(async () => {
-    const query = searchQuery.trim();
-    if (query.length < 2) return;
-    const name = window.prompt("Save as Smart Folder:", query);
-    if (!name?.trim()) return;
-    await createSmartFolder(name.trim(), query, activeAccountId ?? undefined);
-  }, [searchQuery, activeAccountId, createSmartFolder]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
+  const handleSaveAsSmartFolder = useCallback(() => {
+    if (searchQuery.trim().length < 2) return;
+    setShowSaveModal(true);
+  }, [searchQuery]);
 
   const handleChange = useCallback(
     (value: string) => {
@@ -92,6 +92,18 @@ export function SearchBar() {
           </button>
         </div>
       )}
+      <InputDialog
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onSubmit={(values) => {
+          createSmartFolder(values.name!.trim(), searchQuery.trim(), activeAccountId ?? undefined);
+        }}
+        title="Save as Smart Folder"
+        fields={[
+          { key: "name", label: "Name", defaultValue: searchQuery.trim() },
+        ]}
+        submitLabel="Save"
+      />
     </div>
   );
 }

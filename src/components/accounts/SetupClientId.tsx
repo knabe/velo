@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { setSetting, setSecureSetting } from "@/services/db/settings";
+import { Modal } from "@/components/ui/Modal";
 
 interface SetupClientIdProps {
   onComplete: () => void;
@@ -29,9 +30,8 @@ export function SetupClientId({ onComplete, onCancel }: SetupClientIdProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 glass-backdrop">
-      <div className="bg-bg-primary border border-border-primary rounded-xl glass-modal w-full max-w-lg p-6">
-        <h2 className="text-lg font-semibold mb-2">Google API Setup</h2>
+    <Modal isOpen={true} onClose={onCancel} title="Google API Setup" width="w-full max-w-lg">
+      <div className="p-4">
         <p className="text-text-secondary text-sm mb-4">
           To connect Gmail accounts, you need a Google Cloud OAuth Client ID.
         </p>
@@ -85,6 +85,6 @@ export function SetupClientId({ onComplete, onCancel }: SetupClientIdProps) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, X, Send, ExternalLink } from "lucide-react";
 import { askMyInbox, type AskInboxResult } from "@/services/ai/askInbox";
 import { useAccountStore } from "@/stores/accountStore";
@@ -59,7 +60,7 @@ export function AskInbox({ isOpen, onClose }: AskInboxProps) {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[10vh]">
       <div className="absolute inset-0 bg-black/30 glass-backdrop" onClick={onClose} />
       <div className="relative bg-bg-primary border border-border-primary rounded-lg glass-modal w-full max-w-lg overflow-hidden flex flex-col max-h-[70vh]">
@@ -160,6 +161,7 @@ export function AskInbox({ isOpen, onClose }: AskInboxProps) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

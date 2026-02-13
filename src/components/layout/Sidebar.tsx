@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { AccountSwitcher } from "../accounts/AccountSwitcher";
 import { LabelForm } from "../labels/LabelForm";
+import { InputDialog } from "../ui/InputDialog";
 import { useUIStore } from "@/stores/uiStore";
 import { useComposerStore } from "@/stores/composerStore";
 import { useAccountStore } from "@/stores/accountStore";
@@ -276,13 +277,11 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
     setShowNewLabelForm(true);
   }, []);
 
-  const handleAddSmartFolder = useCallback(async () => {
-    const name = window.prompt("Smart folder name:");
-    if (!name?.trim()) return;
-    const query = window.prompt("Search query (e.g. is:unread from:boss):");
-    if (!query?.trim()) return;
-    await createSmartFolder(name.trim(), query.trim(), activeAccountId ?? undefined);
-  }, [createSmartFolder, activeAccountId]);
+  const [showSmartFolderModal, setShowSmartFolderModal] = useState(false);
+
+  const handleAddSmartFolder = useCallback(() => {
+    setShowSmartFolderModal(true);
+  }, []);
 
   const editingLabel = editingLabelId ? labels.find((l) => l.id === editingLabelId) ?? null : null;
 
@@ -552,6 +551,22 @@ export function Sidebar({ collapsed, onAddAccount }: SidebarProps) {
         </button>
       </div>
 
+      <InputDialog
+        isOpen={showSmartFolderModal}
+        onClose={() => setShowSmartFolderModal(false)}
+        onSubmit={(values) => {
+          createSmartFolder(
+            values.name!.trim(),
+            values.query!.trim(),
+            activeAccountId ?? undefined,
+          );
+        }}
+        title="New Smart Folder"
+        fields={[
+          { key: "name", label: "Name", placeholder: "e.g. Unread from boss" },
+          { key: "query", label: "Search query", placeholder: "e.g. is:unread from:boss" },
+        ]}
+      />
     </aside>
   );
 }
