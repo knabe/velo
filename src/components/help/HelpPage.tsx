@@ -27,6 +27,7 @@ export function HelpPage() {
     const allCards = getAllCards();
     return allCards.filter((card) => {
       if (card.title.toLowerCase().includes(q)) return true;
+      if (card.summary.toLowerCase().includes(q)) return true;
       if (card.description.toLowerCase().includes(q)) return true;
       if (card.tips?.some((tip) => tip.text.toLowerCase().includes(q))) return true;
       return false;

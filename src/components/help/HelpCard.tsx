@@ -10,50 +10,46 @@ interface HelpCardProps {
 
 export function HelpCard({ card, isExpanded, onToggle }: HelpCardProps) {
   const Icon = card.icon;
-  const hasExpandableContent = (card.tips && card.tips.length > 0) || card.relatedSettingsTab;
 
   return (
-    <div
-      className="rounded-lg border border-border-secondary bg-bg-primary/60 overflow-hidden transition-colors hover:border-border-primary"
-    >
+    <div className="rounded-lg border border-border-secondary bg-bg-primary/60 overflow-hidden transition-colors hover:border-border-primary">
+      {/* Collapsed header: icon + title + summary + chevron */}
       <button
-        onClick={hasExpandableContent ? onToggle : undefined}
-        className={`flex items-start gap-3 w-full px-4 py-3 text-left ${
-          hasExpandableContent ? "cursor-pointer" : "cursor-default"
-        }`}
+        onClick={onToggle}
+        className="flex items-center gap-3 w-full px-4 py-3 text-left cursor-pointer"
       >
-        <div className="w-8 h-8 rounded-md bg-accent/10 text-accent flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-8 h-8 rounded-md bg-accent/10 text-accent flex items-center justify-center shrink-0">
           <Icon size={16} />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-text-primary">{card.title}</h3>
-          <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
-            {card.description}
-          </p>
+          <p className="text-xs text-text-tertiary mt-0.5 truncate">{card.summary}</p>
         </div>
-        {hasExpandableContent && (
-          <ChevronRight
-            size={14}
-            className={`shrink-0 text-text-tertiary mt-1 transition-transform duration-200 ${
-              isExpanded ? "rotate-90" : ""
-            }`}
-          />
-        )}
+        <ChevronRight
+          size={14}
+          className={`shrink-0 text-text-tertiary transition-transform duration-200 ${
+            isExpanded ? "rotate-90" : ""
+          }`}
+        />
       </button>
 
-      {/* Expandable content */}
+      {/* Expanded body: description + tips + settings link */}
       <div
         className={`grid transition-[grid-template-rows] duration-200 ease-out ${
           isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-3 pt-0 ml-11 border-t border-border-secondary/50 pt-2">
+          <div className="px-4 pb-4 ml-11 border-t border-border-secondary/50 pt-3 space-y-3">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              {card.description}
+            </p>
+
             {card.tips && card.tips.length > 0 && (
               <ul className="space-y-1.5">
                 {card.tips.map((tip, i) => (
                   <li key={i} className="flex items-start gap-2 text-xs text-text-secondary">
-                    <span className="text-text-tertiary mt-0.5">•</span>
+                    <span className="text-text-tertiary mt-0.5 shrink-0">•</span>
                     <span className="flex-1">{tip.text}</span>
                     {tip.shortcut && (
                       <kbd className="shrink-0 px-1.5 py-0.5 text-[0.625rem] bg-bg-secondary border border-border-secondary rounded text-text-tertiary font-mono">
@@ -64,13 +60,14 @@ export function HelpCard({ card, isExpanded, onToggle }: HelpCardProps) {
                 ))}
               </ul>
             )}
+
             {card.relatedSettingsTab && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigateToSettings(card.relatedSettingsTab!);
                 }}
-                className="mt-2 text-xs text-accent hover:text-accent-hover transition-colors"
+                className="text-xs text-accent hover:text-accent-hover transition-colors"
               >
                 Open in Settings &rarr;
               </button>

@@ -24,11 +24,20 @@ describe("helpContent", () => {
     }
   });
 
-  it("every card has non-empty title and description", () => {
+  it("every card has non-empty title, summary, and description", () => {
     for (const cat of HELP_CATEGORIES) {
       for (const card of cat.cards) {
         expect(card.title.trim().length).toBeGreaterThan(0);
+        expect(card.summary.trim().length).toBeGreaterThan(0);
         expect(card.description.trim().length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("summary is shorter than description for every card", () => {
+    for (const cat of HELP_CATEGORIES) {
+      for (const card of cat.cards) {
+        expect(card.summary.length).toBeLessThan(card.description.length);
       }
     }
   });
