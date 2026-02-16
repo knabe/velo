@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.png" alt="Velo" width="200" height="200" style="border-radius: 24px;" />
+  <img src="assets/icon.png?v1" alt="Velo" width="200" height="200" style="border-radius: 24px;" />
 </p>
 
 <h1 align="center">Velo</h1>
