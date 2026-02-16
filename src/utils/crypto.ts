@@ -5,7 +5,7 @@
  */
 
 import { exists, readTextFile, writeTextFile, mkdir } from "@tauri-apps/plugin-fs";
-import { appDataDir } from "@tauri-apps/api/path";
+import { appDataDir, join } from "@tauri-apps/api/path";
 
 const KEY_FILE_NAME = "velo.key";
 const ALGORITHM = "AES-GCM";
@@ -33,7 +33,7 @@ function base64Decode(str: string): Uint8Array {
 
 async function getKeyFilePath(): Promise<string> {
   const dir = await appDataDir();
-  return `${dir}${KEY_FILE_NAME}`;
+  return join(dir, KEY_FILE_NAME);
 }
 
 async function ensureAppDataDir(): Promise<void> {
