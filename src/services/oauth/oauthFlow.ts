@@ -160,6 +160,7 @@ export async function refreshProviderToken(
 
 function parseIdToken(idToken: string): Record<string, unknown> {
   const payload = idToken.split(".")[1];
+  if (!payload) throw new Error("Invalid ID token format");
   const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
   return JSON.parse(decoded);
 }
