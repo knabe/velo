@@ -100,9 +100,10 @@ export function ActionBar({ thread, messages, noReply, defaultReplyMode = "reply
   const handleSnooze = async (until: number) => {
     if (!activeAccountId) return;
     setShowSnooze(false);
+    // Optimistic: remove from UI immediately, then persist to DB
+    removeThread(thread.id);
     try {
       await snoozeThread(activeAccountId, thread.id, until);
-      removeThread(thread.id);
     } catch (err) {
       console.error("Failed to snooze:", err);
     }
