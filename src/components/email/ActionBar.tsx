@@ -55,6 +55,13 @@ export function ActionBar({ thread, messages, noReply, defaultReplyMode = "reply
       .catch(() => setHasFollowUp(false));
   }, [activeAccountId, thread.id]);
 
+  // Listen for keyboard shortcut to toggle snooze dialog
+  useEffect(() => {
+    const handleToggleSnooze = () => setShowSnooze(true);
+    window.addEventListener("velo-toggle-snooze", handleToggleSnooze);
+    return () => window.removeEventListener("velo-toggle-snooze", handleToggleSnooze);
+  }, []);
+
   const handleToggleRead = async () => {
     if (!activeAccountId) return;
     await markThreadRead(activeAccountId, thread.id, [], !thread.isRead);
