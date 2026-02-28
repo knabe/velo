@@ -100,14 +100,15 @@ export function ActionBar({ thread, messages, noReply, defaultReplyMode = "reply
   const handleSnooze = async (until: number) => {
     if (!activeAccountId) return;
     setShowSnooze(false);
-    // Optimistic: remove from UI immediately, then persist to DB
+    // Save state for rollback, then optimistically remove from UI
+    const { threads, threadMap } = useThreadStore.getState();
     removeThread(thread.id);
     try {
       await snoozeThread(activeAccountId, thread.id, until);
     } catch (err) {
       console.error("Failed to snooze:", err);
-      // Trigger re-fetch so the thread reappears in the list
-      window.dispatchEvent(new Event("velo-sync-done"));
+      // Direct rollback — restore previous store state without re-fetch
+      useThreadStore.setState({ threads, threadMap });
     }
   };
 
